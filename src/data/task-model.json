@@ -1,0 +1,136 @@
+{
+  "model": "Task",
+  "tasks": [
+    {
+      "name": "ProveNPCompleteness",
+      "description": "Given a search problem B and a known NP-complete problem A, prove that B is NP-complete by showing B is in NP and that A reduces to B in polynomial time.",
+      "inputParameters": [
+        "initialConfiguration: configuration",
+        "knowledgeBase: knowledgeBase"
+      ],
+      "outputParameters": [
+        "finalConfiguration: configuration"
+      ],
+      "given": "isSearchProblem(initialConfiguration.problemB) && isNPComplete(initialConfiguration.problemA)",
+      "makes": "goodNPCProof(finalConfiguration)",
+      "means": [
+        {
+          "mechanismReference": "NPCProofSolution",
+          "actualArguments": ["initialConfiguration", "finalConfiguration"]
+        }
+      ]
+    },
+    {
+      "name": "ShowProblemIsInNP",
+      "description": "Show that the target problem B is in NP by exhibiting a polynomial-time checker algorithm C(I,S) that verifies any proposed solution S to instance I. Solutions must be concise (length polynomial in |I|).",
+      "inputParameters": [
+        "initialConfiguration: configuration",
+        "knowledgeBase: knowledgeBase"
+      ],
+      "outputParameters": [
+        "finalConfiguration: configuration"
+      ],
+      "given": "isSearchProblem(initialConfiguration.problemB)",
+      "makes": "!isEmpty(finalConfiguration.checkerAlgorithm) && polynomialTime(finalConfiguration.checkerAlgorithm)",
+      "means": [
+        {
+          "mechanismReference": "ShowInNPMechanism",
+          "actualArguments": ["initialConfiguration", "finalConfiguration"]
+        }
+      ]
+    },
+    {
+      "name": "ConstructForwardReduction",
+      "description": "Construct the polynomial-time function f that maps any instance I of known NP-complete problem A into an instance f(I) of target problem B. If I has no solution, f(I) must have no solution either.",
+      "inputParameters": [
+        "initialConfiguration: configuration",
+        "knowledgeBase: knowledgeBase"
+      ],
+      "outputParameters": [
+        "finalConfiguration: configuration"
+      ],
+      "given": "isNPComplete(initialConfiguration.problemA) && isSearchProblem(initialConfiguration.problemB)",
+      "makes": "!isEmpty(finalConfiguration.forwardFunction_f) && polynomialTime(finalConfiguration.forwardFunction_f)",
+      "means": [
+        {
+          "mechanismReference": "ForwardReductionMechanism",
+          "actualArguments": ["initialConfiguration", "finalConfiguration"]
+        }
+      ]
+    },
+    {
+      "name": "ConstructBackwardSolutionRecovery",
+      "description": "Construct the polynomial-time function h that maps any solution S of f(I) in problem B back to a valid solution h(S) of the original instance I in problem A.",
+      "inputParameters": [
+        "initialConfiguration: configuration",
+        "knowledgeBase: knowledgeBase"
+      ],
+      "outputParameters": [
+        "finalConfiguration: configuration"
+      ],
+      "given": "!isEmpty(initialConfiguration.forwardFunction_f) && hasSolution(initialConfiguration.reducedInstance)",
+      "makes": "!isEmpty(finalConfiguration.backwardFunction_h) && polynomialTime(finalConfiguration.backwardFunction_h)",
+      "means": [
+        {
+          "mechanismReference": "BackwardRecoveryMechanism",
+          "actualArguments": ["initialConfiguration", "finalConfiguration"]
+        }
+      ]
+    },
+    {
+      "name": "VerifyReductionCorrectness",
+      "description": "Verify that the reduction is correct by checking both cases: (1) when f(I) has a solution, h(S) is a valid solution to I; (2) when f(I) has no solution, I has no solution. This is the validation step of the proof.",
+      "inputParameters": [
+        "initialConfiguration: configuration",
+        "knowledgeBase: knowledgeBase"
+      ],
+      "outputParameters": [
+        "finalConfiguration: configuration"
+      ],
+      "given": "!isEmpty(initialConfiguration.forwardFunction_f) && !isEmpty(initialConfiguration.backwardFunction_h)",
+      "makes": "goodReduction(finalConfiguration)",
+      "means": [
+        {
+          "mechanismReference": "ReductionVerificationMechanism",
+          "actualArguments": ["initialConfiguration", "finalConfiguration"]
+        }
+      ]
+    },
+    {
+      "name": "FailureGoal",
+      "description": "Terminal failure goal invoked when any step of the NP-completeness proof fails: the problem cannot be shown to be in NP, or the reduction is invalid, or solution recovery fails.",
+      "inputParameters": [
+        "initialConfiguration: configuration"
+      ],
+      "outputParameters": [
+        "finalConfiguration: configuration"
+      ],
+      "given": "true",
+      "makes": "proofFailed(finalConfiguration)",
+      "means": [
+        {
+          "mechanismReference": "FailureMechanism",
+          "actualArguments": ["initialConfiguration"]
+        }
+      ]
+    },
+    {
+      "name": "Complete",
+      "description": "Terminal success goal: the NP-completeness proof is complete. Problem B is in NP and all NP problems reduce to B via the composed reduction through A.",
+      "inputParameters": [
+        "finalConfiguration: configuration"
+      ],
+      "outputParameters": [
+        "finalConfiguration: configuration"
+      ],
+      "given": "goodNPCProof(finalConfiguration)",
+      "makes": "isNPComplete(finalConfiguration.problemB)",
+      "means": [
+        {
+          "mechanismReference": "CompleteMechanism",
+          "actualArguments": ["finalConfiguration"]
+        }
+      ]
+    }
+  ]
+}

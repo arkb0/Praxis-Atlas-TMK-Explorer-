@@ -1,0 +1,529 @@
+{
+  "model": "Knowledge",
+  "concepts": [
+    {
+      "name": "decisionProblem",
+      "description": "A problem specified by a polynomial-time decision algorithm D(I) that returns true or false for each instance I. Decision problems ask whether a solution exists or whether a given property holds. Decision problems are polynomially equivalent to search problems (Does a solution exist vs Find the solution).",
+      "properties": [
+        { "name": "instance", "type": "string" },
+        { "name": "decisionAlgorithmRuntime", "type": "polynomialInInstanceLength" }
+      ]
+    },
+    {
+      "name": "searchProblem",
+      "description": "A problem specified by a polynomial-time checking algorithm C(I,S) that returns true iff S is a solution to instance I. Solutions must have length polynomially bounded by |I|. Search problems are polynomially equivalent to decision problems (Find the solution vs Does a solution exist).",
+      "properties": [
+        { "name": "instance", "type": "string" },
+        { "name": "proposedSolution", "type": "string" },
+        { "name": "checkerRuntime", "type": "polynomialInInstanceLength" }
+      ]
+    },
+    {
+      "name": "optimisationProblem",
+      "description": "A problem in which, given an instance I, the goal is to find a feasible solution S that minimises or maximises an objective function f(I,S). Feasibility can be checked in polynomial time, and feasible solutions have length polynomially bounded in |I|.",
+      "properties": [
+        { "name": "instance", "type": "string" },
+        { "name": "feasibleSolution", "type": "string" },
+        { "name": "objectiveFunction", "type": "function" },
+        { "name": "optimisationDirection", "type": "string" },
+        { "name": "feasibilityCheckerRuntime", "type": "polynomialInInstanceLength" }
+      ]
+    },
+    {
+      "name": "complexityClass",
+      "description": "A class of problems grouped by computational tractability.",
+      "properties": [
+        { "name": "className", "type": "string" },
+        { "name": "definition", "type": "string" }
+      ]
+    },
+    {
+      "name": "NPClass",
+      "description": "The class of all search problems whose proposed solutions are verifiable in time polynomial in |I|. NP stands for nondeterministic polynomial time.",
+      "superConcept": ["complexityClass"]
+    },
+    {
+      "name": "PClass",
+      "description": "The class of all search problems solvable in polynomial time. An algorithm takes instance I and runs in time polynomial in |I|, returning a solution if one exists or reporting none.",
+      "superConcept": ["complexityClass"]
+    },
+    {
+      "name": "NPCompleteClass",
+      "description": "A search problem is NP-complete if all other search problems in NP reduce to it in polynomial time. Because every problem in NP reduces to it, if even one NP-complete problem is in P, then P=NP.",
+      "superConcept": ["complexityClass"]
+    },
+    {
+      "name": "NP-hardness",
+      "description": "A property of a computational problem (not a complexity class). A problem is NP-hard if every problem in NP can be reduced to it in polynomial time under the chosen notion of polynomial-time reduction. An NP-hard problem need not itself belong to NP; it may, for example, be an optimisation problem, a decision/search problem, or a problem whose solutions are not verifiable in polynomial time."
+    },
+    {
+      "name": "reduction",
+      "description": "A reduction from search problem A to search problem B consists of: (1) a polynomial-time function f mapping instances of A to instances of B, and (2) a polynomial-time function h mapping solutions of f(I) back to solutions of I. If f(I) has no solution, then I has no solution. Reducing A to B proves that A <=_p B, i.e. B is at least as hard as A (think: Solving B = solving A + transformation steps).",
+      "properties": [
+        { "name": "sourceProblem", "type": "string" },
+        { "name": "targetProblem", "type": "string" },
+        { "name": "forwardMapping", "type": "polynomialTimeFunction" },
+        { "name": "backwardMapping", "type": "polynomialTimeFunction" }
+      ]
+    },
+    {
+      "name": "booleanFormula",
+      "description": "A Boolean formula in conjunctive normal form (CNF): a conjunction of clauses, each clause being a disjunction of literals. A literal is a Boolean variable x or its negation.",
+      "properties": [
+        { "name": "clauses", "type": "setOfClauses" },
+        { "name": "variables", "type": "setOfBooleanVariables" }
+      ]
+    },
+    {
+      "name": "clause",
+      "description": "A disjunction of literals in a CNF formula.",
+      "properties": [
+        { "name": "literals", "type": "listOfLiterals" },
+        { "name": "size", "type": "integer" }
+      ]
+    },
+    {
+      "name": "literal",
+      "description": "Either a Boolean variable (positive literal) or the negation of one (negative literal).",
+      "properties": [
+        { "name": "variable", "type": "string" },
+        { "name": "polarity", "type": "boolean" }
+      ]
+    },
+    {
+      "name": "truthAssignment",
+      "description": "An assignment of true or false to each Boolean variable. A satisfying truth assignment makes every clause contain at least one true literal.",
+      "properties": [
+        { "name": "variableValues", "type": "mapFromVariablesToBoolean" }
+      ]
+    },
+    {
+      "name": "graph",
+      "description": "A graph G=(V,E) with vertex set V and edge set E. May be directed or undirected.",
+      "properties": [
+        { "name": "vertices", "type": "set" },
+        { "name": "edges", "type": "set" },
+        { "name": "directed", "type": "boolean" }
+      ]
+    },
+    {
+      "name": "independentSet",
+      "description": "A set S of vertices in graph G such that no two vertices in S have an edge between them.",
+      "properties": [
+        { "name": "vertices", "type": "set" },
+        { "name": "size", "type": "integer" }
+      ]
+    },
+    {
+      "name": "vertexCover",
+      "description": "A set S of vertices in graph G=(V,E) such that every edge in E has at least one endpoint in S. S is a vertex cover iff V-S is an independent set.",
+      "properties": [
+        { "name": "vertices", "type": "set" },
+        { "name": "size", "type": "integer" }
+      ]
+    },
+    {
+      "name": "clique",
+      "description": "A set S of vertices in graph G such that all possible edges between vertices of S are present (i.e., a complete subgraph). S is a clique of G iff S is an independent set of the complement graph G'.",
+      "properties": [
+        { "name": "vertices", "type": "set" },
+        { "name": "size", "type": "integer" }
+      ]
+    },
+    {
+      "name": "hamiltonianCycle",
+      "description": "Also called Rudrata Cycle. A cycle in a graph that visits each vertex exactly once. No polynomial algorithm is known.",
+      "properties": [
+        { "name": "vertexSequence", "type": "orderedList" }
+      ]
+    },
+    {
+      "name": "hamiltonianPath",
+      "description": "Also called Rudrata Path or Rudrata (s,t)-Path. A path visiting each vertex exactly once, optionally with specified endpoints s and t.",
+      "properties": [
+        { "name": "startVertex", "type": "string" },
+        { "name": "endVertex", "type": "string" },
+        { "name": "vertexSequence", "type": "orderedList" }
+      ]
+    },
+    {
+      "name": "eulerPath",
+      "description": "A path visiting each edge exactly once. Exists for undirected graphs iff (a) all vertices with edges are connected and (b) zero or exactly two vertices have odd degree, with existence decidable in polynomial time. For directed graphs, exists iff all vertices with edges belong to a single connected component when edge directions are ignored (i.e. all vertices with edges are connected in the underlying undirected graph), and either (a) every vertex has equal in-degree and out-degree, or (b) exactly one vertex has out-degree one greater than its in-degree, exactly one vertex has in-degree one greater than its out-degree, and all otehr vertices have equal in-degree and out-degree, with existence decidable in polynomial time. Discovered by Euler in 1735.",
+      "properties": [
+        { "name": "edgeSequence", "type": "orderedList" }
+      ]
+    },
+    {
+      "name": "tspTour",
+      "description": "In the Traveling Salesman Problem (TSP): given n vertices with pairwise distances and budget b, find a permutation τ(1),...,τ(n) such that d_{τ(1),τ(2)} + ... + d_{τ(n),τ(1)} <= b.",
+      "properties": [
+        { "name": "permutation", "type": "orderedList" },
+        { "name": "totalCost", "type": "integer" },
+        { "name": "budget", "type": "integer" }
+      ]
+    },
+    {
+      "name": "knapsackInstance",
+      "description": "Given integer weights w_1,...,w_n, integer values v_1,...,v_n, weight capacity W, and goal g: find a subset of items with total weight <= W and total value >= g. DP algorithm runs in O(nW): pseudopolynomial; exponential in input size (value of the input = W vs size of the input = log W).",
+      "properties": [
+        { "name": "weights", "type": "listOfIntegers" },
+        { "name": "values", "type": "listOfIntegers" },
+        { "name": "capacity", "type": "integer" },
+        { "name": "goal", "type": "integer" }
+      ]
+    },
+    {
+      "name": "subsetSumInstance",
+      "description": "Special case of Knapsack where each item's value equals its weight. Find a subset of integers summing to exactly W. NP-complete.",
+      "properties": [
+        { "name": "integers", "type": "listOfIntegers" },
+        { "name": "target", "type": "integer" }
+      ]
+    },
+    {
+      "name": "ilpInstance",
+      "description": "Integer Linear Programming: given matrix A (m x n) and vector b, find a nonnegative integer vector x satisfying Ax <= b, or report none exists. No efficient algorithm known.",
+      "properties": [
+        { "name": "constraintMatrix", "type": "matrix" },
+        { "name": "constraintVector", "type": "vector" }
+      ]
+    },
+    {
+      "name": "zoeInstance",
+      "description": "Zero-One Equations: find a 0-1 vector x satisfying Ax=1, where A is an m x n matrix with 0-1 entries and 1 is the all-ones m-vector. Special case of ILP.",
+      "properties": [
+        { "name": "binaryMatrix", "type": "matrix" }
+      ]
+    },
+    {
+      "name": "threeDMatchingInstance",
+      "description": "Given n boys, n girls, n pets and a set of triples (boy,girl,pet), find n disjoint triples covering every boy, girl, and pet exactly once. Generalisation of bipartite matching; no polynomial algorithm known.",
+      "properties": [
+        { "name": "boys", "type": "set" },
+        { "name": "girls", "type": "set" },
+        { "name": "pets", "type": "set" },
+        { "name": "triples", "type": "setOfTriples" }
+      ]
+    },
+    {
+      "name": "booleanCircuit",
+      "description": "A DAG with AND gates (indegree 2), OR gates (indegree 2), NOT gates (indegree 1), known input gates (labelled true/false), and unknown input gates (labelled ?). One sink is the output gate. Used in the Cook-Levin theorem.",
+      "properties": [
+        { "name": "gates", "type": "set" },
+        { "name": "outputGate", "type": "gate" },
+        { "name": "unknownInputs", "type": "set" }
+      ]
+    },
+    {
+      "name": "undecidableProblem",
+      "description": "A problem for which no algorithm exists at all, not even exponential. Example: the Halting Problem. Distinct from NP-complete problems which have exponential algorithms.",
+      "properties": [
+        { "name": "problemName", "type": "string" }
+      ]
+    },
+    {
+      "name": "haltingProblemInstance",
+      "description": "Given a program p and input x, does p ever terminate when started on x? Assuming an algorithm terminates(p,x) correctly decides this for every p,x, the diagonal proof constructs paradox(z), which terminates iff terminates(z,z) is false, leading to contradiction when z=paradox; therefore no such algorithm can exist.",
+      "properties": [
+        { "name": "program", "type": "string" },
+        { "name": "input", "type": "string" }
+      ]
+    },
+    {
+      "name": "proofByReduction",
+      "description": "Method to establish NP-completeness: show A reduces to B (A --> B). Difficulty flows in direction of arrow; efficient algorithms flow opposite. Reductions compose: if A --> B and B --> C then A --> C.",
+      "properties": [
+        { "name": "knownHardProblem", "type": "string" },
+        { "name": "targetProblem", "type": "string" },
+        { "name": "reductionIsPolynomialTime", "type": "boolean" }
+      ]
+    },
+    {
+      "name": "diagonalisationProof",
+      "description": "Method to show that a purported complete description is impossible: given any purported complete description, construct an object that escapes it. Appears in Cantor's uncountability, Russell's set paradox, Gödel's incompleteness, and Turing's undecidability proofs (among others).",
+      "properties": [
+        { "name": "purportedCompleteDescription", "type": "string" },
+        { "name": "constructedCounterexample", "type": "string" }
+      ]
+    },
+    {
+      "name": "triangleGadget",
+      "description": "In the 3SAT --> Independent Set reduction: each clause with three literals is represented as a triangle (3-clique) with vertices labelled by the clause's literals. A clause with two literals becomes a single edge. Forces selection of at most one literal per clause in any independent set.",
+      "properties": [
+        { "name": "clauseLiterals", "type": "listOfLiterals" },
+        { "name": "gadgetType", "type": "string" }
+      ]
+    },
+    {
+      "name": "auxiliaryVariableEncoding",
+      "description": "In the SAT --> 3SAT reduction: a long clause (a1 v a2 v ... v ak) with k>3 literals is replaced by (a1 v a2 v y1)(y1' v a3 v y2)(y2' v a4 v y3)...(y_{k-3}' v a_{k-1} v ak) using fresh variables y_i. The original clause is satisfied iff the replacement clauses are simultaneously satisfiable.",
+      "properties": [
+        { "name": "originalClauseSize", "type": "integer" },
+        { "name": "auxiliaryVariables", "type": "listOfVariables" }
+      ]
+    },
+    {
+      "name": "complementGraph",
+      "description": "Given graph G=(V,E), the complement G'=(V,E') contains exactly those edges NOT in E. A set S is an independent set of G iff S is a clique of G'. Used in the Independent Set <-> Clique reduction.",
+      "properties": [
+        { "name": "originalEdges", "type": "set" },
+        { "name": "complementEdges", "type": "set" }
+      ]
+    },
+    {
+      "name": "base_n_plus_1_encoding",
+      "description": "In the ZOE --> Subset Sum reduction: columns of the 0-1 matrix A are interpreted as integers in base (n+1) rather than base 2, where n is the number of columns. This prevents carry, ensuring 0-1 vectors sum correctly.",
+      "properties": [
+        { "name": "base", "type": "integer" },
+        { "name": "numberOfColumns", "type": "integer" }
+      ]
+    }
+  ],
+  "instances": [
+    {
+      "name": "SAT-instance-example",
+      "concept": "booleanFormula",
+      "values": {
+        "description": "Example: (x v y v z)(x v y')(y v z')(z v x')(x' v y' v z'). Setting all variables true satisfies every clause except the last. The three middle clauses constrain all three variables to have the same value, making the formula unsatisfiable.",
+        "clauses": ["(x v y v z)", "(x v y')", "(y v z')", "(z v x')", "(x' v y' v z')"],
+        "variables": ["x", "y", "z"],
+        "satisfiable": false
+      }
+    },
+    {
+      "name": "3SAT-example-for-independent-set",
+      "concept": "booleanFormula",
+      "values": {
+        "description": "Example for the 3SAT --> Independent Set reduction: (x' v y v z')(x v y' v z)(x v y v z)(x' v y'). Has 4 clauses so goal g=4 for the independent set.",
+        "clauses": ["(x' v y v z')", "(x v y' v z)", "(x v y v z)", "(x' v y')"],
+        "variables": ["x", "y", "z"],
+        "numberOfClauses": 4
+      }
+    },
+    {
+      "name": "initialConfiguration-SATproblem",
+      "concept": "booleanFormula",
+      "values": {
+        "status": "unsolved",
+        "description": "A CNF formula I presented to a SAT solver: instance I with no truth assignment yet determined."
+      }
+    },
+    {
+      "name": "finalConfiguration-SATproblem",
+      "concept": "truthAssignment",
+      "values": {
+        "status": "solved",
+        "description": "A satisfying truth assignment S such that C(I,S)=true, or report that no such assignment exists."
+      }
+    },
+    {
+      "name": "initialConfiguration-NPCReduction",
+      "concept": "searchProblem",
+      "values": {
+        "status": "instanceOfProblemA",
+        "description": "An instance I of problem A, before application of reduction f to map it to an instance of problem B."
+      }
+    },
+    {
+      "name": "finalConfiguration-NPCReduction",
+      "concept": "searchProblem",
+      "values": {
+        "status": "solutionToOriginalInstance",
+        "description": "A solution h(S) to instance I of problem A, recovered via h from solution S of f(I) in problem B."
+      }
+    },
+    {
+      "name": "3SAT-to-IndependentSet-reduction-instance",
+      "concept": "reduction",
+      "values": {
+        "sourceA": "3SAT",
+        "targetB": "INDEPENDENT-SET",
+        "forwardMapping": "For each clause build a triangle (or edge for 2-literal clause) with vertices labelled by literals; add edges between vertices representing opposite literals; set goal g = number of clauses.",
+        "backwardMapping": "Given independent set S of size g: for each variable x, if S contains vertex labelled x assign x=true; if labelled x' assign x=false. Since S has one vertex per clause, at least one literal per clause is true.",
+        "validity": "S cannot contain both x and x' connected by an edge. S of size g yields a satisfying assignment. Conversely if formula is satisfiable pick one true literal per clause to form independent set of size g."
+      }
+    },
+    {
+      "name": "SAT-to-3SAT-reduction-instance",
+      "concept": "reduction",
+      "values": {
+        "sourceA": "SAT",
+        "targetB": "3SAT",
+        "forwardMapping": "Replace each clause (a1 v a2 v ... v ak) with k>3 by: (a1 v a2 v y1)(y1' v a3 v y2)(y2' v a4 v y3)...(y_{k-3}' v a_{k-1} v ak) using fresh variables y_i.",
+        "backwardMapping": "Any satisfying assignment to the 3SAT instance yields one for the original SAT instance by ignoring auxiliary y_i variables.",
+        "validity": "If right-hand clauses all satisfied then some a_i must be true (else y1 forced true, forcing y2 true, ..., falsifying last clause). Conversely if some a_i is true, set y1=...=y_{i-2}=true, rest false, satisfying all replacement clauses."
+      }
+    },
+    {
+      "name": "IndependentSet-to-VertexCover-reduction-instance",
+      "concept": "reduction",
+      "values": {
+        "sourceA": "INDEPENDENT-SET",
+        "targetB": "VERTEX-COVER",
+        "forwardMapping": "Given (G,g), ask for vertex cover of G with |V|-g nodes.",
+        "backwardMapping": "If vertex cover C of size |V|-g exists, return V-C as the independent set of size g.",
+        "validity": "S is a vertex cover iff V-S is an independent set (every edge has an endpoint in S iff no edge has both endpoints in V-S)."
+      }
+    },
+    {
+      "name": "IndependentSet-to-Clique-reduction-instance",
+      "concept": "reduction",
+      "values": {
+        "sourceA": "INDEPENDENT-SET",
+        "targetB": "CLIQUE",
+        "forwardMapping": "Map instance (G,g) to instance (G', g) where G' is the complement of G.",
+        "backwardMapping": "Solution to Clique in G' is identical solution to Independent Set in G.",
+        "validity": "S is an independent set of G (no edges between vertices of S in G) iff S is a clique of G' (all possible edges between vertices of S present in G', since G' contains exactly the edges not in G)."
+      }
+    },
+    {
+      "name": "ZOE-to-SubsetSum-reduction-instance",
+      "concept": "reduction",
+      "values": {
+        "sourceA": "ZOE",
+        "targetB": "SUBSET-SUM",
+        "forwardMapping": "Interpret each column of the 0-1 matrix A as an integer in base (n+1), where n is the number of columns. Target sum is the integer 111...1 in base (n+1) (all-ones vector). Find subset of column-integers summing to target.",
+        "backwardMapping": "The 0-1 selection of columns that sum to the target gives the 0-1 vector x satisfying Ax=1.",
+        "validity": "Using base (n+1) instead of base 2 eliminates carry: since at most n integers are added and all digits are 0 or 1, no carry occurs, so vector addition and integer addition coincide."
+      }
+    },
+    {
+      "name": "HamiltonianCycle-to-TSP-reduction-instance",
+      "concept": "reduction",
+      "values": {
+        "sourceA": "HAMILTONIAN-CYCLE",
+        "targetB": "TSP",
+        "forwardMapping": "Given graph G=(V,E), set cities = V, distance d(u,v) = 1 if {u,v} in E, else 1+alpha for alpha>1. Set budget b = |V|.",
+        "backwardMapping": "If TSP tour of cost <= |V| exists, it uses only edges of G (cost 1 each), giving a Hamiltonian cycle. If G has no Hamiltonian cycle, cheapest tour costs >= |V| + alpha.",
+        "validity": "If alpha=1 distances are 1 or 2, satisfying triangle inequality (useful for approximation). If alpha large, gap property holds: solution cost is either exactly |V| or at least |V|+alpha, implying no approximation algorithm exists unless P=NP."
+      }
+    },
+    {
+      "name": "AnyNP-to-CIRCUITSAT-reduction-instance",
+      "concept": "reduction",
+      "values": {
+        "sourceA": "ANY-PROBLEM-IN-NP",
+        "targetB": "CIRCUIT-SAT",
+        "forwardMapping": "Given instance I of problem A in NP with checker C(I,S), any polynomial-time algorithm can be rendered as a circuit. Build a circuit with known inputs = bits of I and unknown inputs = bits of S, such that output = true iff S is a solution to I. This circuit has polynomial size in |I|.",
+        "backwardMapping": "Any satisfying assignment to unknown inputs of the circuit gives a solution S to I.",
+        "validity": "The checker C(I,S) runs in time polynomial in |I|; any polynomial-time algorithm on |I| bits can be expressed as a polynomial-size Boolean circuit. The satisfying truth assignments of the circuit's unknown inputs are in one-to-one correspondence with solutions of I."
+      }
+    },
+    {
+      "name": "CIRCUITSAT-to-SAT-reduction-instance",
+      "concept": "reduction",
+      "values": {
+        "sourceA": "CIRCUIT-SAT",
+        "targetB": "SAT",
+        "forwardMapping": "For each gate g in the circuit introduce a Boolean variable g. Model gate behaviour as CNF clauses: OR gate g with inputs h1,h2 gives clauses (g v h1')(g v h2')(g' v h1 v h2); AND gate gives (g' v h2)(g' v h1)(g v h1' v h2'); NOT gate gives (g v h)(g' v h'); known-true gate gives (g); known-false gives (g'). Add clause (g_out) for output gate.",
+        "backwardMapping": "Any satisfying assignment to the CNF directly gives truth values for all gates including unknown inputs.",
+        "validity": "Clauses force each gate variable to equal the correct Boolean function of its inputs. Satisfying assignments of the CNF are in one-to-one correspondence with those of the circuit."
+      }
+    },
+    {
+      "name": "HaltingProblem-diagonal-proof",
+      "concept": "haltingProblemInstance",
+      "values": {
+        "description": "Diagonal (paradox) proof that no algorithm terminates(p,x) can exist. Define: function paradox(z:file) which terminates iff terminates(z,z) is false. Then paradox(paradox) terminates iff terminates(paradox,paradox) is false, iff paradox(paradox) does not terminate. This is a contradiction in both cases, proving no such algorithm can exist. Discovered by Turing in 1936.",
+        "paradoxProgram": "0: function paradox(z:file):\b1: if terminates(z,z) goto 1\n2: else halt",
+        "contradiction": "paradox(paradox) terminates iff it does not terminate"
+      }
+    },
+    {
+      "name": "Knapsack-DP-instance",
+      "concept": "knapsackInstance",
+      "values": {
+        "description": "Dynamic programming solution to Knapsack runs in O(nW). This is exponential in the input size because input encodes W in binary using log W bits, so W = 2^{log W} can be exponential in the number of bits. Unary Knapsack (W encoded in unary) is in P. Subset Sum (values equal weights, goal equals capacity) is NP-complete.",
+        "dpRuntime": "O(nW)",
+        "inputSizeNote": "W vs log W: pseudopolynomial, not truly polynomial"
+      }
+    },
+    {
+      "name": "HamiltonianPath-to-HamiltonianCycle-reduction-instance",
+      "concept": "reduction",
+      "values": {
+        "sourceA": "HAMILTONIAN-(s,t)-PATH",
+        "targetB": "HAMILTONIAN-CYCLE",
+        "forwardMapping": "Given G=(V,E) with endpoints s,t: construct G'=(V union {x}, E union {{s,x},{x,t}}) by adding new vertex x and edges {s,x} and {x,t}.",
+        "backwardMapping": "Given Hamiltonian cycle in G': since x has only two neighbors s and t, the cycle must traverse {t,x} and {x,s} consecutively. Delete x and these two edges to obtain a Hamiltonian (s,t)-path in G.",
+        "validity": "Case 1 (cycle exists): any Hamiltonian cycle in G' must use both edges incident to x, yielding an s-to-t path through all other vertices. Case 2 (no cycle): if no Hamiltonian cycle in G', then no Hamiltonian (s,t)-path in G (contrapositive: if (s,t)-path exists, add two x-edges to close the cycle)."
+      }
+    },
+    {
+      "name": "P-NP-question-instance",
+      "concept": "complexityClass",
+      "values": {
+        "description": "Is P != NP? Most researchers believe so. For a fixed proof system with polynomial-time verification, the task of finding a mathematical proof can be formulated as a search problem in NP (proofs can be checked mechanically). If P=NP, then for any fixed proof system with polynomial-time proof verification, proofs of polynomial length could be found in polynomial time whenever such proofs exist and the corresponding proof-search problem is encoded appropriately. The question remains one of the deepest unsolved puzzles of mathematics.",
+        "currentBelief": "P != NP, widely believed but unproven",
+        "implication": "If P=NP then every NP problem has a polynomial algorithm; if even one NP-complete problem is in P then P=NP"
+      }
+    }
+  ],
+  "relations": [
+    {
+      "name": "reducesTo",
+      "domain": "searchProblem",
+      "range": "searchProblem"
+    },
+    {
+      "name": "isNPComplete",
+      "domain": "searchProblem",
+      "range": "NPCompleteClass"
+    },
+    {
+      "name": "isInP",
+      "domain": "searchProblem",
+      "range": "PClass"
+    },
+    {
+      "name": "isSpecialCaseOf",
+      "domain": "searchProblem",
+      "range": "searchProblem"
+    },
+    {
+      "name": "complementOf",
+      "domain": "searchProblem",
+      "range": "searchProblem"
+    },
+    {
+      "name": "dualIn",
+      "domain": "independentSet",
+      "range": "clique"
+    },
+    {
+      "name": "encodes",
+      "domain": "booleanCircuit",
+      "range": "searchProblem"
+    }
+  ],
+  "triples": [
+    { "instance1": "SAT-to-3SAT-reduction-instance", "relation": "reducesTo", "instance2": "SAT-instance-example" },
+    { "instance1": "independentSet", "relation": "complementOf", "instance2": "vertexCover" },
+    { "instance1": "AnyNP-to-CIRCUITSAT-reduction-instance", "relation": "reducesTo", "instance2": "CIRCUITSAT-to-SAT-reduction-instance" },
+    { "instance1": "HamiltonianPath-to-HamiltonianCycle-reduction-instance", "relation": "reducesTo", "instance2": "HamiltonianCycle-to-TSP-reduction-instance" },
+    { "instance1": "ZOE-to-SubsetSum-reduction-instance", "relation": "isSpecialCaseOf", "instance2": "Knapsack-DP-instance" },
+    { "instance1": "IndependentSet-to-VertexCover-reduction-instance", "relation": "complementOf", "instance2": "3SAT-to-IndependentSet-reduction-instance" }
+  ],
+  "assertions": [
+    {
+      "name": "goodNPCProof",
+      "description": "A proof of NP-completeness is valid if: (1) the problem is shown to be in NP (solutions verifiable in polynomial time), and (2) a known NP-complete problem reduces to it in polynomial time via functions f (instance mapping) and h (solution recovery), both running in polynomial time in the source instance size.",
+      "equivalentTo": "isInNP(targetProblem) && existsReduction(knownNPCompleteProblem --> targetProblem) && f_polynomialTime && h_polynomialTime"
+    },
+    {
+      "name": "goodReduction",
+      "description": "A reduction from A to B is correct if: when f(I) has a solution S in B, then h(S) is a valid solution to I in A; and when f(I) has no solution, then I has no solution. Both f and h run in time polynomial in |I|.",
+      "equivalentTo": "forall(I): [hasSolution(f(I)) => isValidSolution(h(solution(f(I))), I)] && [!hasSolution(f(I)) => !hasSolution(I)] && polynomialTime(f) && polynomialTime(h)"
+    },
+    {
+      "name": "goodHaltingProof",
+      "description": "The undecidability proof for the Halting Problem is valid if it derives a logical contradiction from the assumption that terminates(p,x) exists: paradox(paradox) terminates iff terminates(paradox,paradox)=true iff paradox(paradox) does not terminate, which is a contradiction.",
+      "equivalentTo": "diagonalContradiction(paradox(paradox)) => !exists(algorithm: terminates)"
+    },
+    {
+      "name": "safe",
+      "description": "Alias used in mechanism transitions: a configuration (instance, proposedSolution pair) is safe if the polynomial-time checker C(I,S) confirms S is a valid solution to I, or the reduction output is well-formed.",
+      "equivalentTo": "C(instance, proposedSolution) = true"
+    }
+  ]
+}

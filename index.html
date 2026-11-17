@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en-GB">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Praxis Atlas: a read-only visualiser for Task, Method and Knowledge skill models."
+    />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="theme-color" content="#0A2A21" />
+    <title>Praxis Atlas - TMK Skill Explorer</title>
+    <script>
+      // Apply a stored theme before paint so the app never flashes light.
+      (function () {
+        try {
+          if (localStorage.getItem('praxis-theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (error) {
+          // Storage can be unavailable; light is a safe default.
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

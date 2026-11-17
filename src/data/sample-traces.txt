@@ -1,0 +1,585 @@
+============================================================
+QUESTION: What is dynamic programming and how does it work?
+============================================================
+
+------------------------------------------------------------
+IDENTITY ANCHOR (software_qa_prompt)
+------------------------------------------------------------
+You are a software system called Interactive Video Tutors (Ivy). You do the following high-level task: Top-level goal: given a problem instance expressible via dynamic programming, produce an optimal solution by identifying subproblems, deriving a recurrence, filling a DP table in correct order, and extracting the answer as well as the asymptotic complexity. Applies to all canonical DP patterns: DAG shortest paths, LIS, LCS/Edit Distance, Chain Matrix Multiply, Bellman-Ford, Floyd-Warshall, Knapsack.. A user is asking you questions to learn how you work
+
+------------------------------------------------------------
+STAGE 1 INPUT (rendered classification prompt)
+------------------------------------------------------------
+You are a software system called Interactive Video Tutors (Ivy). You do the following high-level task: Top-level goal: given a problem instance expressible via dynamic programming, produce an optimal solution by identifying subproblems, deriving a recurrence, filling a DP table in correct order, and extracting the answer as well as the asymptotic complexity. Applies to all canonical DP patterns: DAG shortest paths, LIS, LCS/Edit Distance, Chain Matrix Multiply, Bellman-Ford, Floyd-Warshall, Knapsack.. A user is asking you questions to learn how you work.
+
+You are the binary router for one specific Ivy skill. Decide whether this
+skill's Task-Method-Knowledge (TMK) model can answer the user's question.
+
+Respond 'yes' when the question asks about a listed task, method, or knowledge
+concept, including a reasonable paraphrase, definition, procedure, rationale,
+example, input, output, or comparison grounded in that TMK.
+
+Respond 'no' when the question belongs to another skill's TMK, asks for course
+logistics, lesson media, grades, or unrelated facts, or needs information not
+represented by this skill's TMK. Do not respond 'yes' just because a question
+is generally about KBAI.
+
+Always respond 'yes' to greetings and social messages, and to questions about
+Ivy, Jill Watson, or the tutoring system itself.
+
+The user asks:
+```
+What is dynamic programming and how does it work?
+```
+
+This skill's TMK names are:
+```
+Tasks: SolveDPProblem, IdentifySubproblems, DeriveRecurrence, FillDPTable, ExtractSolution, FailureGoal, Complete
+Methods: DPSolution, IdentifySubproblemsMechanism, DeriveRecurrenceMechanism, FillDPTableMechanism, ExtractSolutionMechanism, ClassifyProblemType, FormulateSubproblemIndex, ValidateOrdering, OutputSubproblemSpec, AnalyzeCases, WriteRecurrence, SpecifyBaseCases, OutputRecurrenceSpec, AllocateTable, InitializeBaseCases, FillInOrder, OutputFilledTable, ReadObjectiveValue, BacktrackSolution, OutputFinalConfiguration, FailureMechanism, CompleteMechanism
+Knowledge concepts: dpProblem, subproblem, recurrence, dpTable, implicitDAG, optimalSolution, subproblemPattern, sequenceInput, twoSequenceInput, matrixChain, graph, knapsackInstance, configuration
+```
+
+These are up to three compact descriptions selected from this same TMK by
+direct lexical overlap with the question. They help recognize paraphrases,
+but do not expand this skill's scope.
+```
+Relevant tasks:
+SolveDPProblem: Top-level goal: given a problem instance expressible via dynamic programming, produce an optimal solution by identifying subproblems, deriv…
+Relevant methods:
+FillInOrder: Iterate over all subproblems in strictly increasing order of their size in the implicit DAG. For each subproblem, apply the recurrence usin…
+Relevant knowledge:
+dpProblem: An optimization or combinatorial problem involving sequential decisions or stages, amenable to dynamic programming: it has overlapping subp…
+```
+
+Being about the same topic as this skill is not enough. Respond 'yes' only if
+a listed task, method or concept would actually produce the answer. If the
+question needs anything this TMK does not model, respond 'no'.
+
+Respond with only 'yes' or 'no'. No explanation.
+Answer:
+
+------------------------------------------------------------
+STAGE 1 OUTPUT (classification)
+------------------------------------------------------------
+'yes'
+
+------------------------------------------------------------
+STAGE 2 OUTPUT (FAISS top-4 docs + relevance scores)
+------------------------------------------------------------
+
+[0] score=0.7179 source=Task entry=SolveDPProblem
+{'name': 'SolveDPProblem', 'description': 'Top-level goal: given a problem instance expressible via dynamic programming, produce an optimal solution by identifying subproblems, deriving a recurrence, filling a DP table in correct order, and extracting the answer as well as the asymptotic complexity. Applies to all canonical DP patterns: DAG shortest paths, LIS, LCS/Edit Distance, Chain Matrix Multiply, Bellman-Ford, Floyd-Warshall, Knapsack.', 'inputParameters': ['initialConfiguration: configuration', 'knowledgeBase: knowledgeBase'], 'outputParameters': ['finalConfiguration: configuration'], 'given': 'validInput(initialConfiguration) && hasOptimalSubstructure(initialConfiguration) && hasOverlappingSubproblems(initialConfiguration)', 'makes': 'goodDPSolution(finalConfiguration)', 'means': [{'mechanismReference': 'DPSolution', 'actualArguments': ['initialConfiguration', 'knowledgeBase', 'finalConfiguration']}]}
+
+[1] score=0.7166 source=Knowledge entry=dpProblem
+{'name': 'dpProblem', 'description': 'An optimization or combinatorial problem involving sequential decisions or stages, amenable to dynamic programming: it has overlapping subproblems and optimal substructure, so an optimal multi-stage decision or control policy can be constructed by solving smaller subproblems.', 'properties': [{'name': 'inputDescription', 'type': 'String'}, {'name': 'goalDescription', 'type': 'String'}]}
+
+[2] score=0.6730 source=Method entry=FillDPTableMechanism
+{'name': 'FillDPTableMechanism', 'description': 'FSM for allocating and filling the DP table. Steps: (1) AllocateTable - create appropriately-sized table (1D for LIS/Knapsack-rep, 2D for edit-distance/Knapsack-no-rep/chain-matrix/Bellman-Ford, 3D for Floyd-Warshall) and initialize all entries; (2) InitializeBaseCases - write base case values into table boundary positions; (3) FillInOrder - iterate over subproblems in non-decreasing order of size (topological order of implicit DAG), applying the recurrence and recording prev pointers.', 'inputParameters': ['recurrenceSpec: configuration', 'knowledgeBase: knowledgeBase'], 'outputParameters': ['filledTable: configuration'], 'requires': 'validRecurrence(recurrenceSpec) && baseCasesDefined(recurrenceSpec)', 'provides': 'tableFilledInTopologicalOrder(filledTable) && !isEmpty(filledTable.tableState)', 'organizer': {'startState': 'FT_S0', 'successState': 'FT_Done', 'failureState': 'FT_Fail', 'states': [{'name': 'FT_S0', 'goalInvocation': {'goalReference': 'AllocateTable', 'type': 'operation', 'actualArguments': ['recurrenceSpec', 'knowledgeBase']}}, {'name': 'FT_S1', 'goalInvocation': {'goalReference': 'InitializeBaseCases', 'type': 'operation', 'actualArguments': ['recurrenceSpec', 'FT_S0.table']}}, {'name': 'FT_S2', 'goalInvocation': {'goalReference': 'FillInOrder', 'type': 'operation', 'actualArguments': ['recurrenceSpec', 'FT_S1.table']}}, {'name': 'FT_Done', 'goalInvocation': {'goalReference': 'OutputFilledTable', 'type': 'operation', 'actualArguments': ['FT_S2.filledTable', 'FT_S2.prevPointers', 'filledTable']}}, {'name': 'FT_Fail', 'goalInvocation': {'goalReference': 'FailureGoal', 'type': 'task', 'actualArguments': []}}], 'transitions': [{'sourceState': 'FT_S0', 'targetState': 'FT_S1', 'dataCondition': '!isEmpty(FT_S0.table)'}, {'sourceState': 'FT_S0', 'targetState': 'FT_Fail', 'dataCondition': 'isEmpty(FT_S0.table)'}, {'sourceState': 'FT_S1', 'targetState': 'FT_S2', 'dataCondition': 'baseCasesInitialized(FT_S1.table)'}, {'sourceState': 'FT_S1', 'targetState': 'FT_Fail', 'dataCondition': '!baseCasesInitialized(FT_S1.table)'}, {'sourceState': 'FT_S2', 'targetState': 'FT_Done', 'dataCondition': 'tableFilledInTopologicalOrder(FT_S2.filledTable) && !isEmpty(FT_S2.filledTable)'}, {'sourceState': 'FT_S2', 'targetState': 'FT_Fail', 'dataCondition': '!tableFilledInTopologicalOrder(FT_S2.filledTable) || isEmpty(FT_S2.filledTable)'}]}}
+
+[3] score=0.6727 source=Task entry=IdentifySubproblems
+{'name': 'IdentifySubproblems', 'description': 'Determine the right subproblem formulation: the most crucial step in DP. Select among canonical patterns: (i) prefix x_1..x_i -> O(n) subproblems; (ii) two-prefix x_1..x_i and y_1..y_j -> O(mn) subproblems; (iii) interval x_i..x_j -> O(n^2) subproblems; (iv) rooted subtree -> O(n) subproblems. For graph DP: subproblem augmented with edge-count constraint (shortest reliable paths, Bellman-Ford) or intermediate node set (Floyd-Warshall).', 'inputParameters': ['initialConfiguration: configuration', 'knowledgeBase: knowledgeBase'], 'outputParameters': ['subproblemSpec: configuration'], 'given': 'validInput(initialConfiguration)', 'makes': '!isEmpty(subproblemSpec.subproblemDefinition) && validSubproblemOrdering(subproblemSpec)', 'means': [{'mechanismReference': 'IdentifySubproblemsMechanism', 'actualArguments': ['initialConfiguration', 'knowledgeBase', 'subproblemSpec']}]}
+
+------------------------------------------------------------
+STAGE 3 OUTPUT (intermediate response)
+------------------------------------------------------------
+Dynamic programming (DP) is a method for solving optimization and counting problems by breaking them into overlapping simpler subproblems, solving each subproblem once, and combining those solutions to form an optimal solution to the original problem.
+
+Key ideas:
+- Optimal substructure: An optimal solution to the problem can be constructed from optimal solutions to its subproblems.
+- Overlapping subproblems: Subproblems recur many times; solving each once and storing the result avoids recomputation (memoization or tabulation).
+- Recurrence: You identify subproblems and write a recurrence that expresses the value of a subproblem in terms of smaller subproblems.
+- DP table: You fill a table (1D, 2D, or higher) in a specific order that respects dependencies, usually from smallest subproblems to larger ones.
+- Reconstruction: If needed, you store choice information (prev pointers) to reconstruct an optimal solution path.
+
+How it works in practice (high-level steps):
+1) model the problem as a set of subproblems: decide what parameters uniquely identify a subproblem (e.g., indices i, j, remaining capacity, etc.).
+2) derive a recurrence: express the solution for a subproblem in terms of solutions to smaller subproblems.
+3) initialize base cases: set the known values for the simplest subproblems.
+4) determine an order to fill subproblems: typically increasing in size or along a topological order, to ensure all dependencies are computed before they’re used.
+5) fill the table: compute and store values (and often back-pointers to recover the actual solution).
+6) extract the answer: read off the final subproblem’s value (and reconstruct the full solution if needed).
+7) analyze complexity: determine time and space by counting subproblems and work per subproblem.
+
+Common DP patterns you’ll see:
+- Longest Increasing Subsequence (LIS): subproblems based on prefixes or index pairs; O(n^2) time, O(n) or O(n^2) space.
+- Longest Common Subsequence / Edit Distance: subproblems with two indices (i, j) over two strings; O(nm) time, O(nm) space.
+- Knapsack (0/1 or unbounded): subproblems by item and capacity; O(nW) time, O(W) or O(nW) space.
+- Matrix Chain Multiplication: subproblems by interval [i, j]; O(n^3) time, O(n^2) space.
+- Floyd-Warshall / Bellman-Ford: graph-based DP with subproblems defined over pairs of nodes or node sets; O(n^3) time for Floyd-Warshall, etc.
+- DAG shortest paths: DP over a topologically sorted DAG; linear in number of edges plus vertices.
+- LCS with path reconstruction: use a table for lengths and a separate structure to recover the sequence.
+
+If you’d like, I can walk through a specific DP example step by step (define subproblems, derive recurrence, fill the table in order, reconstruct solution, and discuss complexity). Tell me which problem you have in mind or share a small instance, and I’ll demonstrate the full DP workflow.
+
+------------------------------------------------------------
+STAGE 4 OUTPUT (final answer)
+------------------------------------------------------------
+Dynamic programming is a method for solving optimization or counting problems by breaking them into overlapping subproblems, solving each subproblem once, and combining these solutions to obtain an optimal overall solution.
+
+Key idea in one sentence: solve subproblems, reuse results (memoization/table), and build up to the final answer using a recurrence.
+
+If you want an example, I can walk through one step by step. Otherwise, this concise definition covers the concept.
+
+------------------------------------------------------------
+6-TUPLE TRACE
+------------------------------------------------------------
+response_type: Ivy
+metadata_trace: ['Task', 'Knowledge', 'Method', 'Task']
+sources_trace:  ['SolveDPProblem', 'dpProblem', 'FillDPTableMechanism', 'IdentifySubproblems']
+scores_trace:   [0.717919111251831, 0.7165781259536743, 0.673008918762207, 0.6727340221405029]
+
+***
+
+============================================================
+QUESTION: Emel is learning the geometric Kufic calligraphic script. The mantra his master taught him was to 'practice, practice, practice', so he decides to get creative with the handful of letters he has learnt to write. Starting from (i, j), Kerim has learnt to write three letters - a tall letter that fills the space up to (i + 3, j + 2), a wide letter that fills the space up to (i + 1, j + 2), and a squarish letter that fills the space up to (i + 1, j + 1). Use dynamic programming to find the number of ways he can fill the square from (1, 1) to (n, n) with these three letters (for beginners, the meaning lies in the shapes they can string together, not the strings of letters themselves being semantically meaningful).
+============================================================
+
+------------------------------------------------------------
+IDENTITY ANCHOR (software_qa_prompt)
+------------------------------------------------------------
+You are a software system called Interactive Video Tutors (Ivy). You do the following high-level task: Top-level goal: given a problem instance expressible via dynamic programming, produce an optimal solution by identifying subproblems, deriving a recurrence, filling a DP table in correct order, and extracting the answer as well as the asymptotic complexity. Applies to all canonical DP patterns: DAG shortest paths, LIS, LCS/Edit Distance, Chain Matrix Multiply, Bellman-Ford, Floyd-Warshall, Knapsack.. A user is asking you questions to learn how you work
+
+------------------------------------------------------------
+STAGE 1 INPUT (rendered classification prompt)
+------------------------------------------------------------
+You are a software system called Interactive Video Tutors (Ivy). You do the following high-level task: Top-level goal: given a problem instance expressible via dynamic programming, produce an optimal solution by identifying subproblems, deriving a recurrence, filling a DP table in correct order, and extracting the answer as well as the asymptotic complexity. Applies to all canonical DP patterns: DAG shortest paths, LIS, LCS/Edit Distance, Chain Matrix Multiply, Bellman-Ford, Floyd-Warshall, Knapsack.. A user is asking you questions to learn how you work.
+
+You are the binary router for one specific Ivy skill. Decide whether this
+skill's Task-Method-Knowledge (TMK) model can answer the user's question.
+
+Respond 'yes' when the question asks about a listed task, method, or knowledge
+concept, including a reasonable paraphrase, definition, procedure, rationale,
+example, input, output, or comparison grounded in that TMK.
+
+Respond 'no' when the question belongs to another skill's TMK, asks for course
+logistics, lesson media, grades, or unrelated facts, or needs information not
+represented by this skill's TMK. Do not respond 'yes' just because a question
+is generally about KBAI.
+
+Always respond 'yes' to greetings and social messages, and to questions about
+Ivy, Jill Watson, or the tutoring system itself.
+
+The user asks:
+```
+Emel is learning the geometric Kufic calligraphic script. The mantra his master taught him was to 'practice, practice, practice', so he decides to get creative with the handful of letters he has learnt to write. Starting from (i, j), Kerim has learnt to write three letters - a tall letter that fills the space up to (i + 3, j + 2), a wide letter that fills the space up to (i + 1, j + 2), and a squarish letter that fills the space up to (i + 1, j + 1). Use dynamic programming to find the number of ways he can fill the square from (1, 1) to (n, n) with these three letters (for beginners, the meaning lies in the shapes they can string together, not the strings of letters themselves being semantically meaningful).
+```
+
+This skill's TMK names are:
+```
+Tasks: SolveDPProblem, IdentifySubproblems, DeriveRecurrence, FillDPTable, ExtractSolution, FailureGoal, Complete
+Methods: DPSolution, IdentifySubproblemsMechanism, DeriveRecurrenceMechanism, FillDPTableMechanism, ExtractSolutionMechanism, ClassifyProblemType, FormulateSubproblemIndex, ValidateOrdering, OutputSubproblemSpec, AnalyzeCases, WriteRecurrence, SpecifyBaseCases, OutputRecurrenceSpec, AllocateTable, InitializeBaseCases, FillInOrder, OutputFilledTable, ReadObjectiveValue, BacktrackSolution, OutputFinalConfiguration, FailureMechanism, CompleteMechanism
+Knowledge concepts: dpProblem, subproblem, recurrence, dpTable, implicitDAG, optimalSolution, subproblemPattern, sequenceInput, twoSequenceInput, matrixChain, graph, knapsackInstance, configuration
+```
+
+These are up to three compact descriptions selected from this same TMK by
+direct lexical overlap with the question. They help recognize paraphrases,
+but do not expand this skill's scope.
+```
+Relevant tasks:
+None.
+Relevant methods:
+FillDPTableMechanism: FSM for allocating and filling the DP table. Steps: (1) AllocateTable - create appropriately-sized table (1D for LIS/Knapsack-rep, 2D for e…
+FillInOrder: Iterate over all subproblems in strictly increasing order of their size in the implicit DAG. For each subproblem, apply the recurrence usin…
+Relevant knowledge:
+dpProblem: An optimization or combinatorial problem involving sequential decisions or stages, amenable to dynamic programming: it has overlapping subp…
+```
+
+Being about the same topic as this skill is not enough. Respond 'yes' only if
+a listed task, method or concept would actually produce the answer. If the
+question needs anything this TMK does not model, respond 'no'.
+
+Respond with only 'yes' or 'no'. No explanation.
+Answer:
+
+------------------------------------------------------------
+STAGE 1 OUTPUT (classification)
+------------------------------------------------------------
+'yes'
+
+------------------------------------------------------------
+STAGE 2 OUTPUT (FAISS top-4 docs + relevance scores)
+------------------------------------------------------------
+
+[0] score=0.6429 source=Method entry=FillDPTableMechanism
+{'name': 'FillDPTableMechanism', 'description': 'FSM for allocating and filling the DP table. Steps: (1) AllocateTable - create appropriately-sized table (1D for LIS/Knapsack-rep, 2D for edit-distance/Knapsack-no-rep/chain-matrix/Bellman-Ford, 3D for Floyd-Warshall) and initialize all entries; (2) InitializeBaseCases - write base case values into table boundary positions; (3) FillInOrder - iterate over subproblems in non-decreasing order of size (topological order of implicit DAG), applying the recurrence and recording prev pointers.', 'inputParameters': ['recurrenceSpec: configuration', 'knowledgeBase: knowledgeBase'], 'outputParameters': ['filledTable: configuration'], 'requires': 'validRecurrence(recurrenceSpec) && baseCasesDefined(recurrenceSpec)', 'provides': 'tableFilledInTopologicalOrder(filledTable) && !isEmpty(filledTable.tableState)', 'organizer': {'startState': 'FT_S0', 'successState': 'FT_Done', 'failureState': 'FT_Fail', 'states': [{'name': 'FT_S0', 'goalInvocation': {'goalReference': 'AllocateTable', 'type': 'operation', 'actualArguments': ['recurrenceSpec', 'knowledgeBase']}}, {'name': 'FT_S1', 'goalInvocation': {'goalReference': 'InitializeBaseCases', 'type': 'operation', 'actualArguments': ['recurrenceSpec', 'FT_S0.table']}}, {'name': 'FT_S2', 'goalInvocation': {'goalReference': 'FillInOrder', 'type': 'operation', 'actualArguments': ['recurrenceSpec', 'FT_S1.table']}}, {'name': 'FT_Done', 'goalInvocation': {'goalReference': 'OutputFilledTable', 'type': 'operation', 'actualArguments': ['FT_S2.filledTable', 'FT_S2.prevPointers', 'filledTable']}}, {'name': 'FT_Fail', 'goalInvocation': {'goalReference': 'FailureGoal', 'type': 'task', 'actualArguments': []}}], 'transitions': [{'sourceState': 'FT_S0', 'targetState': 'FT_S1', 'dataCondition': '!isEmpty(FT_S0.table)'}, {'sourceState': 'FT_S0', 'targetState': 'FT_Fail', 'dataCondition': 'isEmpty(FT_S0.table)'}, {'sourceState': 'FT_S1', 'targetState': 'FT_S2', 'dataCondition': 'baseCasesInitialized(FT_S1.table)'}, {'sourceState': 'FT_S1', 'targetState': 'FT_Fail', 'dataCondition': '!baseCasesInitialized(FT_S1.table)'}, {'sourceState': 'FT_S2', 'targetState': 'FT_Done', 'dataCondition': 'tableFilledInTopologicalOrder(FT_S2.filledTable) && !isEmpty(FT_S2.filledTable)'}, {'sourceState': 'FT_S2', 'targetState': 'FT_Fail', 'dataCondition': '!tableFilledInTopologicalOrder(FT_S2.filledTable) || isEmpty(FT_S2.filledTable)'}]}}
+
+[1] score=0.6396 source=Method entry=FillInOrder
+{'name': 'FillInOrder', 'description': 'Iterate over all subproblems in strictly increasing order of their size in the implicit DAG. For each subproblem, apply the recurrence using previously computed values. Record prev(j) or prev(i,j) pointers for solution reconstruction. Specific orderings: LIS: j=1..n; Edit Distance: row i=1..m, column j=1..n; Knapsack-no-rep: j=1..n outer, w=1..W inner; Chain Matrix: s=1..n-1 (size), i=1..n-s, j=i+s; Floyd-Warshall: k=1..n outer, i=1..n, j=1..n inner. Time = O(work per edge * |edges in implicit DAG|).', 'inputParameters': ['recurrenceSpec: configuration', 'table: String'], 'outputParameters': ['filledTable: String', 'prevPointers: String'], 'requires': 'baseCasesInitialized(table) && validRecurrence(recurrenceSpec)', 'provides': 'tableFilledInTopologicalOrder(filledTable) && !isEmpty(filledTable)'}
+
+[2] score=0.6366 source=Method entry=ExtractSolutionMechanism
+{'name': 'ExtractSolutionMechanism', 'description': 'FSM for extracting the optimal solution from the filled table. Steps: (1) ReadObjectiveValue - read the goal cell(s) of the table: max_j L(j) for LIS; E(m,n) for edit distance; K(W) or K(W,n) for knapsack; C(1,n) for chain matrix multiply; dist(i,j,n) for all-pairs shortest paths; (2) BacktrackSolution - follow prev pointers to reconstruct the actual solution (subsequence, alignment, item set, parenthesization, or path).', 'inputParameters': ['filledTable: configuration', 'knowledgeBase: knowledgeBase'], 'outputParameters': ['finalConfiguration: configuration'], 'requires': 'tableFilledInTopologicalOrder(filledTable)', 'provides': 'goodDPSolution(finalConfiguration) && !isEmpty(finalConfiguration.optimalSolution)', 'organizer': {'startState': 'ES_S0', 'successState': 'ES_Done', 'failureState': 'ES_Fail', 'states': [{'name': 'ES_S0', 'goalInvocation': {'goalReference': 'ReadObjectiveValue', 'type': 'operation', 'actualArguments': ['filledTable', 'knowledgeBase']}}, {'name': 'ES_S1', 'goalInvocation': {'goalReference': 'BacktrackSolution', 'type': 'operation', 'actualArguments': ['filledTable', 'ES_S0.objectiveValue', 'knowledgeBase']}}, {'name': 'ES_Done', 'goalInvocation': {'goalReference': 'OutputFinalConfiguration', 'type': 'operation', 'actualArguments': ['ES_S0.objectiveValue', 'ES_S1.solutionTrace', 'finalConfiguration']}}, {'name': 'ES_Fail', 'goalInvocation': {'goalReference': 'FailureGoal', 'type': 'task', 'actualArguments': []}}], 'transitions': [{'sourceState': 'ES_S0', 'targetState': 'ES_S1', 'dataCondition': '!isEmpty(ES_S0.objectiveValue) && decisionSequenceRequired'}, {'sourceState': 'ES_S0', 'targetState': 'ES_Fail', 'dataCondition': 'isEmpty(ES_S0.objectiveValue)'}, {'sourceState': 'ES_S0', 'targetState': 'ES_Done', 'dataCondition': '!isEmpty(ES_S0.objectiveValue) && !decisionSequenceRequired'}, {'sourceState': 'ES_S1', 'targetState': 'ES_Done', 'dataCondition': '!isEmpty(ES_S1.solutionTrace)'}, {'sourceState': 'ES_S1', 'targetState': 'ES_Fail', 'dataCondition': 'isEmpty(ES_S1.solutionTrace)'}]}}
+
+[3] score=0.6328 source=Task entry=DeriveRecurrence
+{'name': 'DeriveRecurrence', 'description': 'Express the value of each subproblem in terms of strictly smaller subproblems and define base cases. The recurrence encodes the edges of the implicit DAG. Pattern-specific recurrences: LIS: L(j)=1+max{L(i):(i,j) in E}; Edit Distance: E(i,j)=min{E(i-1,j)+1, E(i,j-1)+1, diff(i,j)+E(i-1,j-1)}; Knapsack (rep): K(w)=max_i{K(w-w_i)+v_i}; Knapsack (no-rep): K(w,j)=max{K(w,j-1), K(w-w_j,j-1)+v_j}; Chain Matrix: C(i,j)=min_k{C(i,k)+C(k+1,j)+m_{i-1}*m_k*m_j}; Bellman-Ford (single-source shortest paths): dist(v,i) = min{ dist(v,i-1), min_{(u,v) in E} { dist(u,i-1) + l(u,v) } }; Floyd-Warshall (all-pairs shortest paths): dist(i,j,k)=min{dist(i,k,k-1)+dist(k,j,k-1), dist(i,j,k-1)}.', 'inputParameters': ['subproblemSpec: configuration', 'knowledgeBase: knowledgeBase'], 'outputParameters': ['recurrenceSpec: configuration'], 'given': '!isEmpty(subproblemSpec.subproblemDefinition)', 'makes': 'validRecurrence(recurrenceSpec) && baseCasesDefined(recurrenceSpec) && recurrenceUsesOnlySmallerSubproblems(recurrenceSpec)', 'means': [{'mechanismReference': 'DeriveRecurrenceMechanism', 'actualArguments': ['subproblemSpec', 'knowledgeBase', 'recurrenceSpec']}]}
+
+------------------------------------------------------------
+STAGE 3 OUTPUT (intermediate response)
+------------------------------------------------------------
+Nice question. This is a classic DP tiling/counting problem with three tile shapes that advance coordinates by different steps from a starting cell.
+
+Problem restatement in DP terms:
+- We want the number of ways to fill a n x n grid from (1,1) to (n,n) using three “tiles” (letters) that extend the filled region as follows:
+  - Tall letter: from (i,j) to (i+3, j+2)
+  - Wide letter: from (i,j) to (i+1, j+2)
+  - Squarish letter: from (i,j) to (i+1, j+1)
+- We assume tiles can be placed when their entire footprint stays within the target square, and placements do not overlap (standard tiling interpretation).
+- We want the number of tilings of the n x n square starting at (1,1) ending exactly at (n,n) with these moves in a DP-feasible formulation.
+
+DP modeling approach (one valid formulation):
+- Subproblem: Let DP[i][j] be the number of ways to fill the sub-rectangle from (1,1) to (i,j) completely, i.e., to end exactly at (i,j).
+- Base case: DP[0][0] = 1 if you like 0-indexing; otherwise DP[1][1] = 1 as the starting cell is considered already filled.
+- Transitions: To end at (i,j), you must place one of the three tiles so that its footprint ends at (i,j) and its footprint lies within the grid:
+  - Tall tile ends at (i,j) if it started at (i-3, j-2). This tile covers a region that reaches to (i, j) from (i-3, j-2). Contribution: DP[i-3][j-2], valid when i-3 >= 1 and j-2 >= 1.
+  - Wide tile ends at (i,j) if started at (i-1, j-2). Contribution: DP[i-1][j-2], valid when i-1 >= 1 and j-2 >= 1.
+  - Squarish tile ends at (i,j) if started at (i-1, j-1). Contribution: DP[i-1][j-1], valid when i-1 >= 1 and j-1 >= 1.
+- Recurrence (for i,j within [1..n]):
+  DP[i][j] = (i-3 >= 1 && j-2 >= 1 ? DP[i-3][j-2] : 0)
+           + (i-1 >= 1 && j-2 >= 1 ? DP[i-1][j-2] : 0)
+           + (i-1 >= 1 && j-1 >= 1 ? DP[i-1][j-1] : 0)
+
+- Answer: DP[n][n].
+
+Notes on indexing and edge handling:
+- If you prefer 0-based indexing, adjust indices accordingly:
+  DP[x][y] counts ways to fill sub-rectangle up to (x,y) (inclusive), with transitions:
+  DP[x][y] = (x-3>=0 && y-2>=0 ? DP[x-3][y-2] : 0)
+           + (x-1>=0 && y-2>=0 ? DP[x-1][y-2] : 0)
+           + (x-1>=0 && y-1>=0 ? DP[x-1][y-1] : 0)
+  Base: DP[0][0] = 1; DP[others with any negative index] treated as 0.
+- Fill order: row-major or any topological order that ensures all RHS indices are computed before DP[i][j]. A straightforward loop: for i from 1 to n, for j from 1 to n, compute DP[i][j] using the three terms. If you use 0-based indices, loop x from 0..n-1 and y from 0..n-1.
+
+Complexity:
+- Time: O(n^2) states, each with O(1) work, so O(n^2).
+- Space: O(n^2) for DP table (you can optimize to two or three diagonals if memory is a concern, but here a full table is simplest).
+
+Reconstruction (optional):
+- If you want to count tilings only, no reconstruction required.
+- If you want to know a particular tiling, you can store a prev pointer for which tile contributed to DP[i][j] (or one of them) and backtrack from DP[n][n] to DP[0][0].
+
+If you’d like, I can:
+- Provide a small code snippet (in Python/C++) implementing this DP.
+- Work through a concrete example (say n=3 or n=4) to illustrate the counts.
+- Discuss any clarifications about tile overlap restrictions or starting/ending boundary conventions.
+
+------------------------------------------------------------
+STAGE 4 OUTPUT (final answer)
+------------------------------------------------------------
+Here's a concise DP formulation focused on the essential details.
+
+- Tiles (footprints from starting cell (i,j)):
+  - Tall: covers up to (i+3, j+2)
+  - Wide: covers up to (i+1, j+2)
+  - Squarish: covers up to (i+1, j+1)
+
+- DP definition (1-based indexing):
+  - DP[i][j] = number of ways to fill the sub-rectangle from (1,1) to (i,j) so that it ends exactly at (i,j).
+  - Recurrence (i, j in [1..n]):
+    DP[i][j] =
+      (i-3 >= 1 && j-2 >= 1 ? DP[i-3][j-2] : 0)
+    + (i-1 >= 1 && j-2 >= 1 ? DP[i-1][j-2] : 0)
+    + (i-1 >= 1 && j-1 >= 1 ? DP[i-1][j-1] : 0)
+
+- Base:
+  - DP[1][1] = 1 (start cell already filled)
+  - Other DP[x][y] with negative indices treated as 0; 0-based indexing variant below.
+
+- 0-based variant (often simpler):
+  - DP[x][y] counts ways to fill up to (x,y) inclusive, x,y in [0..n-1].
+  - DP[x][y] =
+      (x-3 >= 0 && y-2 >= 0 ? DP[x-3][y-2] : 0)
+    + (x-1 >= 0 && y-2 >= 0 ? DP[x-1][y-2] : 0)
+    + (x-1 >= 0 && y-1 >= 0 ? DP[x-1][y-1] : 0)
+  - Base: DP[0][0] = 1.
+
+- Complexity:
+  - Time: O(n^2)
+  - Space: O(n^2) (can optimize to diagonals if needed)
+
+- Optional notes:
+  - Fill order: any topological order such that the three source indices are computed before (i,j).
+  - If you want a concrete implementation or a small example, I can provide a snippet (Python/C++).
+
+------------------------------------------------------------
+6-TUPLE TRACE
+------------------------------------------------------------
+response_type: Ivy
+metadata_trace: ['Method', 'Method', 'Method', 'Task']
+sources_trace:  ['FillDPTableMechanism', 'FillInOrder', 'ExtractSolutionMechanism', 'DeriveRecurrence']
+scores_trace:   [0.6428651213645935, 0.6396141052246094, 0.6365952491760254, 0.6327618360519409]
+
+***
+
+============================================================
+QUESTION: In a reduction proof, what must the direction of reduction be - do I reduce the known to unknown, or unknown to known, and wny?
+============================================================
+
+------------------------------------------------------------
+IDENTITY ANCHOR (software_qa_prompt)
+------------------------------------------------------------
+You are a software system called Interactive Video Tutors (Ivy). You do the following high-level task: Given a search problem B and a known NP-complete problem A, prove that B is NP-complete by showing B is in NP and that A reduces to B in polynomial time.. A user is asking you questions to learn how you work
+
+------------------------------------------------------------
+STAGE 1 INPUT (rendered classification prompt)
+------------------------------------------------------------
+You are a software system called Interactive Video Tutors (Ivy). You do the following high-level task: Given a search problem B and a known NP-complete problem A, prove that B is NP-complete by showing B is in NP and that A reduces to B in polynomial time.. A user is asking you questions to learn how you work.
+
+You are the binary router for one specific Ivy skill. Decide whether this
+skill's Task-Method-Knowledge (TMK) model can answer the user's question.
+
+Respond 'yes' when the question asks about a listed task, method, or knowledge
+concept, including a reasonable paraphrase, definition, procedure, rationale,
+example, input, output, or comparison grounded in that TMK.
+
+Respond 'no' when the question belongs to another skill's TMK, asks for course
+logistics, lesson media, grades, or unrelated facts, or needs information not
+represented by this skill's TMK. Do not respond 'yes' just because a question
+is generally about KBAI.
+
+Always respond 'yes' to greetings and social messages, and to questions about
+Ivy, Jill Watson, or the tutoring system itself.
+
+The user asks:
+```
+In a reduction proof, what must the direction of reduction be - do I reduce the known to unknown, or unknown to known, and wny?
+```
+
+This skill's TMK names are:
+```
+Tasks: ProveNPCompleteness, ShowProblemIsInNP, ConstructForwardReduction, ConstructBackwardSolutionRecovery, VerifyReductionCorrectness, FailureGoal, Complete
+Methods: NPCProofSolution, ShowInNPMechanism, ForwardReductionMechanism, BackwardRecoveryMechanism, ReductionVerificationMechanism, IdentifySolutionConciseness, ExhibitCheckerAlgorithm, ConfirmCheckerPolynomialTime, OutputInNPResult, IdentifyReductionStrategy, ApplyGadgetConstruction, VerifyForwardMappingPolynomialTime, OutputForwardReduction, ReadSolutionOfReducedInstance, ApplyInverseMapping, ValidateRecoveredSolution, OutputRecoveredSolution, VerifyCase1SolutionExists, VerifyCase2NoSolution, ConfirmPolynomialTimeOfFandH, OutputVerificationResult, FailureMechanism, CompleteMechanism
+Knowledge concepts: decisionProblem, searchProblem, optimisationProblem, complexityClass, NPClass, PClass, NPCompleteClass, NP-hardness, reduction, booleanFormula, clause, literal, truthAssignment, graph, independentSet, vertexCover, clique, hamiltonianCycle, hamiltonianPath, eulerPath, tspTour, knapsackInstance, subsetSumInstance, ilpInstance, zoeInstance, threeDMatchingInstance, booleanCircuit, undecidableProblem, haltingProblemInstance, proofByReduction, diagonalisationProof, triangleGadget, auxiliaryVariableEncoding, complementGraph, base_n_plus_1_encoding
+```
+
+These are up to three compact descriptions selected from this same TMK by
+direct lexical overlap with the question. They help recognize paraphrases,
+but do not expand this skill's scope.
+```
+Relevant tasks:
+None.
+Relevant methods:
+NPCProofSolution: Main FSM orchestrating the full NP-completeness proof for a target problem B given a known NP-complete problem A. Follows the two-step stru…
+Relevant knowledge:
+proofByReduction: Method to establish NP-completeness: show A reduces to B (A --> B). Difficulty flows in direction of arrow; efficient algorithms flow oppos…
+reduction: A reduction from search problem A to search problem B consists of: (1) a polynomial-time function f mapping instances of A to instances of…
+```
+
+Being about the same topic as this skill is not enough. Respond 'yes' only if
+a listed task, method or concept would actually produce the answer. If the
+question needs anything this TMK does not model, respond 'no'.
+
+Respond with only 'yes' or 'no'. No explanation.
+Answer:
+
+------------------------------------------------------------
+STAGE 1 OUTPUT (classification)
+------------------------------------------------------------
+'yes'
+
+------------------------------------------------------------
+STAGE 2 OUTPUT (FAISS top-4 docs + relevance scores)
+------------------------------------------------------------
+
+[0] score=0.7354 source=Knowledge entry=proofByReduction
+{'name': 'proofByReduction', 'description': 'Method to establish NP-completeness: show A reduces to B (A --> B). Difficulty flows in direction of arrow; efficient algorithms flow opposite. Reductions compose: if A --> B and B --> C then A --> C.', 'properties': [{'name': 'knownHardProblem', 'type': 'string'}, {'name': 'targetProblem', 'type': 'string'}, {'name': 'reductionIsPolynomialTime', 'type': 'boolean'}]}
+
+[1] score=0.7336 source=Task entry=VerifyReductionCorrectness
+{'name': 'VerifyReductionCorrectness', 'description': 'Verify that the reduction is correct by checking both cases: (1) when f(I) has a solution, h(S) is a valid solution to I; (2) when f(I) has no solution, I has no solution. This is the validation step of the proof.', 'inputParameters': ['initialConfiguration: configuration', 'knowledgeBase: knowledgeBase'], 'outputParameters': ['finalConfiguration: configuration'], 'given': '!isEmpty(initialConfiguration.forwardFunction_f) && !isEmpty(initialConfiguration.backwardFunction_h)', 'makes': 'goodReduction(finalConfiguration)', 'means': [{'mechanismReference': 'ReductionVerificationMechanism', 'actualArguments': ['initialConfiguration', 'finalConfiguration']}]}
+
+[2] score=0.7129 source=Knowledge entry=reduction
+{'name': 'reduction', 'description': 'A reduction from search problem A to search problem B consists of: (1) a polynomial-time function f mapping instances of A to instances of B, and (2) a polynomial-time function h mapping solutions of f(I) back to solutions of I. If f(I) has no solution, then I has no solution. Reducing A to B proves that A <=_p B, i.e. B is at least as hard as A (think: Solving B = solving A + transformation steps).', 'properties': [{'name': 'sourceProblem', 'type': 'string'}, {'name': 'targetProblem', 'type': 'string'}, {'name': 'forwardMapping', 'type': 'polynomialTimeFunction'}, {'name': 'backwardMapping', 'type': 'polynomialTimeFunction'}]}
+
+[3] score=0.6884 source=Method entry=ReductionVerificationMechanism
+{'name': 'ReductionVerificationMechanism', 'description': 'FSM to verify the correctness of the reduction in both directions. Case 1: when f(I) has a solution S, verify h(S) is a valid solution to I. Case 2 (contrapositive): when I has a solution, verify that f(I) also has a solution (equivalently: if f(I) has no solution then I has no solution). Both cases must pass.', 'inputParameters': ['initialConfiguration: configuration', 'knowledgeBase: knowledgeBase'], 'outputParameters': ['finalConfiguration: configuration'], 'requires': '!isEmpty(initialConfiguration.forwardFunction_f) && !isEmpty(initialConfiguration.backwardFunction_h)', 'provides': 'goodReduction(finalConfiguration)', 'organizer': {'startState': 'RV_S0', 'successState': 'RV_Done', 'failureState': 'RV_Fail', 'states': [{'name': 'RV_S0', 'goalInvocation': {'goalReference': 'VerifyCase1SolutionExists', 'type': 'operation', 'actualArguments': ['initialConfiguration.forwardFunction_f', 'initialConfiguration.backwardFunction_h', 'initialConfiguration.instanceA']}}, {'name': 'RV_S1', 'goalInvocation': {'goalReference': 'VerifyCase2NoSolution', 'type': 'operation', 'actualArguments': ['initialConfiguration.forwardFunction_f', 'initialConfiguration.instanceA']}}, {'name': 'RV_S2', 'goalInvocation': {'goalReference': 'ConfirmPolynomialTimeOfFandH', 'type': 'operation', 'actualArguments': ['initialConfiguration.forwardFunction_f', 'initialConfiguration.backwardFunction_h']}}, {'name': 'RV_Done', 'goalInvocation': {'goalReference': 'OutputVerificationResult', 'type': 'operation', 'actualArguments': ['RV_S2.verificationResult']}}, {'name': 'RV_Fail', 'goalInvocation': {'goalReference': 'FailureGoal', 'type': 'task', 'actualArguments': []}}], 'transitions': [{'sourceState': 'RV_S0', 'targetState': 'RV_S1', 'dataCondition': 'safe(RV_S0) && case1Verified(RV_S0.result)'}, {'sourceState': 'RV_S0', 'targetState': 'RV_Fail', 'dataCondition': 'NOT safe(RV_S0) || NOT case1Verified(RV_S0.result)'}, {'sourceState': 'RV_S1', 'targetState': 'RV_S2', 'dataCondition': 'safe(RV_S1) && case2Verified(RV_S1.result)'}, {'sourceState': 'RV_S1', 'targetState': 'RV_Fail', 'dataCondition': 'NOT safe(RV_S1) || NOT case2Verified(RV_S1.result)'}, {'sourceState': 'RV_S2', 'targetState': 'RV_Done', 'dataCondition': 'safe(RV_S2) && polynomialTime(RV_S2.forwardFunction_f) && polynomialTime(RV_S2.backwardFunction_h)'}, {'sourceState': 'RV_S2', 'targetState': 'RV_Fail', 'dataCondition': 'NOT safe(RV_S2) || NOT polynomialTime(RV_S2.forwardFunction_f) || NOT polynomialTime(RV_S2.backwardFunction_h)'}]}}
+
+------------------------------------------------------------
+STAGE 3 OUTPUT (intermediate response)
+------------------------------------------------------------
+In a reduction proof, the direction of the reduction must go from the known hard problem A to the target problem B: A reduces to B (A ≤p B). This means you show how any instance of the known NP-hard problem A can be transformed in polynomial time into an instance of B such that:
+
+- If the original instance of A has a solution, then the transformed instance of B has a solution.
+- If the original instance of A has no solution, then the transformed instance of B has no solution.
+
+Why this direction? Because it preserves hardness: solving B would give a solution to A via the polynomial-time back-mapping (the reverse mapping). If you tried the opposite direction (reducing B to A), you wouldn’t establish that B is at least as hard as A; you’d be showing how to solve A using B, which doesn’t prove B is NP-hard.
+
+Key points:
+- The forward direction is A → B (A reduces to B).
+- The reduction must be computable in polynomial time.
+- You also provide a polynomial-time decoding/back-mapping from B-solutions to A-solutions to complete the reduction.
+
+If you’d like, I can walk through a concrete example of an A ≤p B reduction and verify its correctness, step by step.
+
+------------------------------------------------------------
+STAGE 4 OUTPUT (final answer)
+------------------------------------------------------------
+In a reduction proof, you show A ≤p B (A reduces to B): transform any instance of a known hard problem A into an instance of B in polynomial time, such that A is solvable iff the transformed B instance is solvable. This preserves hardness.
+
+Key points:
+- Direction: A → B (A reduces to B). Reducing B to A does not establish B’s hardness.
+- Transformation must be computable in polynomial time.
+- Include a polynomial-time decoding: a B-solution maps to an A-solution.
+
+Optional: I can walk through a concrete A ≤p B example if you’d like.
+
+------------------------------------------------------------
+6-TUPLE TRACE
+------------------------------------------------------------
+response_type: Ivy
+metadata_trace: ['Knowledge', 'Task', 'Knowledge', 'Method']
+sources_trace:  ['proofByReduction', 'VerifyReductionCorrectness', 'reduction', 'ReductionVerificationMechanism']
+scores_trace:   [0.7353633046150208, 0.7336424589157104, 0.7128643989562988, 0.6884365677833557]
+
+***
+
+============================================================
+QUESTION: (NP Completeless Proof) Let G = (V, E) be a graph. A dominating set in G is a subset S of the vertices such that every vertex in G is either in S or adjacent to a vertex in S. The Dominating Set problem asks, given a graph G and an integer k as input, whether G contains a dominating set of size k. Prove that this problem is NP-complete.
+============================================================
+
+------------------------------------------------------------
+IDENTITY ANCHOR (software_qa_prompt)
+------------------------------------------------------------
+You are a software system called Interactive Video Tutors (Ivy). You do the following high-level task: Given a search problem B and a known NP-complete problem A, prove that B is NP-complete by showing B is in NP and that A reduces to B in polynomial time.. A user is asking you questions to learn how you work
+
+------------------------------------------------------------
+STAGE 1 INPUT (rendered classification prompt)
+------------------------------------------------------------
+You are a software system called Interactive Video Tutors (Ivy). You do the following high-level task: Given a search problem B and a known NP-complete problem A, prove that B is NP-complete by showing B is in NP and that A reduces to B in polynomial time.. A user is asking you questions to learn how you work.
+
+You are the binary router for one specific Ivy skill. Decide whether this
+skill's Task-Method-Knowledge (TMK) model can answer the user's question.
+
+Respond 'yes' when the question asks about a listed task, method, or knowledge
+concept, including a reasonable paraphrase, definition, procedure, rationale,
+example, input, output, or comparison grounded in that TMK.
+
+Respond 'no' when the question belongs to another skill's TMK, asks for course
+logistics, lesson media, grades, or unrelated facts, or needs information not
+represented by this skill's TMK. Do not respond 'yes' just because a question
+is generally about KBAI.
+
+Always respond 'yes' to greetings and social messages, and to questions about
+Ivy, Jill Watson, or the tutoring system itself.
+
+The user asks:
+```
+(NP Completeless Proof) Let G = (V, E) be a graph. A dominating set in G is a subset S of the vertices such that every vertex in G is either in S or adjacent to a vertex in S. The Dominating Set problem asks, given a graph G and an integer k as input, whether G contains a dominating set of size k. Prove that this problem is NP-complete.
+```
+
+This skill's TMK names are:
+```
+Tasks: ProveNPCompleteness, ShowProblemIsInNP, ConstructForwardReduction, ConstructBackwardSolutionRecovery, VerifyReductionCorrectness, FailureGoal, Complete
+Methods: NPCProofSolution, ShowInNPMechanism, ForwardReductionMechanism, BackwardRecoveryMechanism, ReductionVerificationMechanism, IdentifySolutionConciseness, ExhibitCheckerAlgorithm, ConfirmCheckerPolynomialTime, OutputInNPResult, IdentifyReductionStrategy, ApplyGadgetConstruction, VerifyForwardMappingPolynomialTime, OutputForwardReduction, ReadSolutionOfReducedInstance, ApplyInverseMapping, ValidateRecoveredSolution, OutputRecoveredSolution, VerifyCase1SolutionExists, VerifyCase2NoSolution, ConfirmPolynomialTimeOfFandH, OutputVerificationResult, FailureMechanism, CompleteMechanism
+Knowledge concepts: decisionProblem, searchProblem, optimisationProblem, complexityClass, NPClass, PClass, NPCompleteClass, NP-hardness, reduction, booleanFormula, clause, literal, truthAssignment, graph, independentSet, vertexCover, clique, hamiltonianCycle, hamiltonianPath, eulerPath, tspTour, knapsackInstance, subsetSumInstance, ilpInstance, zoeInstance, threeDMatchingInstance, booleanCircuit, undecidableProblem, haltingProblemInstance, proofByReduction, diagonalisationProof, triangleGadget, auxiliaryVariableEncoding, complementGraph, base_n_plus_1_encoding
+```
+
+These are up to three compact descriptions selected from this same TMK by
+direct lexical overlap with the question. They help recognize paraphrases,
+but do not expand this skill's scope.
+```
+Relevant tasks:
+Complete: Terminal success goal: the NP-completeness proof is complete. Problem B is in NP and all NP problems reduce to B via the composed reduction…
+Relevant methods:
+ExhibitCheckerAlgorithm: Exhibit the polynomial-time checking algorithm C(I,S). For SAT: verify every clause contains a true literal under assignment S. For Indepen…
+Relevant knowledge:
+graph: A graph G=(V,E) with vertex set V and edge set E. May be directed or undirected.
+```
+
+Being about the same topic as this skill is not enough. Respond 'yes' only if
+a listed task, method or concept would actually produce the answer. If the
+question needs anything this TMK does not model, respond 'no'.
+
+Respond with only 'yes' or 'no'. No explanation.
+Answer:
+
+------------------------------------------------------------
+STAGE 1 OUTPUT (classification)
+------------------------------------------------------------
+'yes'
+
+------------------------------------------------------------
+STAGE 2 OUTPUT (FAISS top-4 docs + relevance scores)
+------------------------------------------------------------
+
+[0] score=0.7086 source=Knowledge entry=independentSet
+{'name': 'independentSet', 'description': 'A set S of vertices in graph G such that no two vertices in S have an edge between them.', 'properties': [{'name': 'vertices', 'type': 'set'}, {'name': 'size', 'type': 'integer'}]}
+
+[1] score=0.7040 source=Knowledge entry=clique
+{'name': 'clique', 'description': "A set S of vertices in graph G such that all possible edges between vertices of S are present (i.e., a complete subgraph). S is a clique of G iff S is an independent set of the complement graph G'.", 'properties': [{'name': 'vertices', 'type': 'set'}, {'name': 'size', 'type': 'integer'}]}
+
+[2] score=0.6956 source=Knowledge entry=complementGraph
+{'name': 'complementGraph', 'description': "Given graph G=(V,E), the complement G'=(V,E') contains exactly those edges NOT in E. A set S is an independent set of G iff S is a clique of G'. Used in the Independent Set <-> Clique reduction.", 'properties': [{'name': 'originalEdges', 'type': 'set'}, {'name': 'complementEdges', 'type': 'set'}]}
+
+[3] score=0.6948 source=Knowledge entry=vertexCover
+{'name': 'vertexCover', 'description': 'A set S of vertices in graph G=(V,E) such that every edge in E has at least one endpoint in S. S is a vertex cover iff V-S is an independent set.', 'properties': [{'name': 'vertices', 'type': 'set'}, {'name': 'size', 'type': 'integer'}]}
+
+------------------------------------------------------------
+STAGE 3 OUTPUT (intermediate response)
+------------------------------------------------------------
+Thanks for the question. I’ll give a concise NP-completeness proof outline for the Dominating Set problem.
+
+Problem: Dominating Set
+- Input: A graph G = (V, E) and an integer k.
+- Question: Does G contain a dominating set S ⊆ V with |S| ≤ k, i.e., every vertex v ∈ V is either in S or has a neighbor in S?
+
+Outline of proof that Dominating Set is NP-complete
+
+1) Dominating Set is in NP
+- Given a certificate S ⊆ V with |S| ≤ k, we can verify in polynomial time that S is a dominating set.
+- Check: For every vertex v ∈ V, is v ∈ S or does v have a neighbor in S?
+- If all vertices are covered, accept. This verification runs in O(|V| + |E|) time, which is polynomial in the input size.
+
+2) NP-hardness via reduction from Vertex Cover (or Set Cover, or Dominating Set itself reduced from Vertex Cover)
+- A standard and convenient route is to reduce Vertex Cover to Dominating Set in polynomial time.
+- Given an instance (G = (V, E), k) of Vertex Cover, construct a graph G' = (V', E') and an integer k' such that G has a vertex cover of size ≤ k if and only if G' has a dominating set of size ≤ k'.
+- The classical construction is as follows:
+  - Start with the same vertex set V and edge set E in G'.
+  - Add a new vertex for each edge to help enforce domination constraints. More concretely, for each edge (u, v) ∈ E, add a new vertex e_{uv} and connect e_{uv} to both u and v (i.e., edges (e_{uv}, u) and (e_{uv}, v)).
+  - Let V' = V ∪ {e_{uv} : (u, v) ∈ E} and E' = E ∪ { (e_{uv}, u), (e_{uv}, v) : (u, v) ∈ E }.
+  - Set k' = k.
+- Intuition:
+  - Any dominating set in G' of size ≤ k must cover every original edge by dominating its endpoints and the added edge-vertices, which effectively forces selecting a vertex cover in G.
+  - Conversely, a vertex cover of G of size ≤ k can dominate all vertices in G' by selecting exactly those original vertices, since every edge endpoint is adjacent to its edge-vertex and thus covered.
+- One can show formally that G has a vertex cover of size ≤ k if and only if G' has a dominating set of size ≤ k'.
+
+Alternative standard route:
+- Reduce from Set Cover or from Vertex Cover with a slightly more elaborated but well-known construction. The essential idea remains: there is a polynomial-time reduction from Vertex Cover (NP-complete) to Dominating Set, establishing NP-hardness.
+
+Conclusion
+- Dominating Set is in NP (verification is polynomial).
+- Dominating Set is NP-hard via a polynomial-time reduction from Vertex Cover (or another known NP-complete problem).
+- Therefore, Dominating Set is NP-complete.
+
+If you’d like, I can provide a more explicit, step-by-step reduction with formal correctness proofs and a concrete example to illustrate the construction.
+
+------------------------------------------------------------
+STAGE 4 OUTPUT (final answer)
+------------------------------------------------------------
+Dominating Set: quick definition
+- Input: A graph G = (V, E) and an integer k.
+- Question: Is there a subset S ⊆ V with |S| ≤ k such that every vertex not in S is adjacent to a vertex in S?
+
+Concise NP-completeness proof outline
+- In NP: Given S, we can verify in polynomial time that every vertex is either in S or adjacent to a vertex in S.
+
+- NP-hardness (via reduction from Vertex Cover):
+  - Given an instance (G = (V, E), k) of Vertex Cover, construct G' as follows:
+    - Start with the same V and E.
+    - For each edge (u, v) ∈ E, add a new vertex e_uv and connect it to u and v.
+    - Let V' = V ∪ {e_uv : (u, v) ∈ E} and E' = E ∪ { (e_uv, u), (e_uv, v) : (u, v) ∈ E }.
+    - Set k' = k.
+  - Then G has a vertex cover of size ≤ k iff G' has a dominating set of size ≤ k'.
+  - Intuition: The edge-vertices force a selection that corresponds to choosing endpoints to cover edges, aligning with a vertex cover in G.
+
+Conclusion
+- Dominating Set is in NP.
+- Dominating Set is NP-hard via a polynomial-time reduction from Vertex Cover.
+- Therefore, Dominating Set is NP-complete.
+
+If you’d like, I can provide a more explicit, formal correctness proof for the reduction or a concrete example.
+
+------------------------------------------------------------
+6-TUPLE TRACE
+------------------------------------------------------------
+response_type: Ivy
+metadata_trace: ['Knowledge', 'Knowledge', 'Knowledge', 'Knowledge']
+sources_trace:  ['independentSet', 'clique', 'complementGraph', 'vertexCover']
+scores_trace:   [0.7085884809494019, 0.7040470242500305, 0.695620059967041, 0.6948275566101074]

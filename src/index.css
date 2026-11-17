@@ -1,0 +1,273 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;450;500;600;700&display=swap');
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* Agrarian palette: the four brand colours, plus semantic tokens. */
+:root {
+  --agrarian-blue: #403f84;
+  --agrarian-sky: #2f9fd9;
+  --agrarian-yellow: #f8d727;
+  --agrarian-green: #005c45;
+
+  --page: #f2eee3;
+  --page-deep: #e9e3d5;
+  --surface: #fcfaf3;
+  --surface-raised: #fffdf7;
+  --surface-muted: #f4f0e5;
+  --ink: #1a2a23;
+  --ink-strong: #0f2119;
+  --muted: #6e786e;
+  --faint: #939a8f;
+  --line: #e2dccb;
+  --line-strong: #cfc7b0;
+  --sidebar: #0a2a21;
+  --sidebar-2: #10382c;
+  --sidebar-ink: #f0eee1;
+  --sidebar-muted: #9db4a8;
+  --sidebar-line: #1f4438;
+  --gold: #f8d727;
+  --gold-ink: #4a3b00;
+  --sky: #2f9fd9;
+  --moss: #005c45;
+  --indigo: #403f84;
+  --rust: #a94a2f;
+  --halo: rgba(0, 92, 69, 0.1);
+  --node-label: #1a2a23;
+  --shadow-card: 0 1px 2px rgba(30, 45, 36, 0.04), 0 12px 40px -24px rgba(24, 42, 33, 0.25);
+}
+
+.dark {
+  --page: #08130f;
+  --page-deep: #06100c;
+  --surface: #101f18;
+  --surface-raised: #14261e;
+  --surface-muted: #0d1a14;
+  --ink: #e9ece0;
+  --ink-strong: #fafbf2;
+  --muted: #9bad9f;
+  --faint: #778b7d;
+  --line: #263a30;
+  --line-strong: #365044;
+  --sidebar: #060f0b;
+  --sidebar-2: #0b1d15;
+  --sidebar-ink: #eff1e3;
+  --sidebar-muted: #8fa79a;
+  --sidebar-line: #1c3428;
+  --rust: #d98a63;
+  --halo: rgba(248, 215, 39, 0.09);
+  --node-label: #e9ece0;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.3), 0 20px 50px -30px rgba(0, 0, 0, 0.8);
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-page-deep: var(--page-deep);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-muted: var(--surface-muted);
+  --color-ink: var(--ink);
+  --color-ink-strong: var(--ink-strong);
+  --color-muted: var(--muted);
+  --color-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-2: var(--sidebar-2);
+  --color-sidebar-ink: var(--sidebar-ink);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-line: var(--sidebar-line);
+  --color-gold: var(--gold);
+  --color-sky: var(--sky);
+  --color-moss: var(--moss);
+  --color-indigo: var(--indigo);
+  --color-agrarian-blue: var(--agrarian-blue);
+  --color-agrarian-sky: var(--agrarian-sky);
+  --color-agrarian-yellow: var(--agrarian-yellow);
+  --color-agrarian-green: var(--agrarian-green);
+  --color-rust: var(--rust);
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Fraunces", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--line);
+  }
+
+  html {
+    background: var(--page);
+    scroll-behavior: smooth;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    margin: 0;
+    min-width: 320px;
+    background: var(--page);
+    color: var(--ink);
+    font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  button {
+    cursor: pointer;
+  }
+
+  ::selection {
+    background: var(--gold);
+    color: #1a2a23;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--agrarian-sky);
+    outline-offset: 2px;
+  }
+}
+
+@layer utilities {
+  .font-feature-tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .serif {
+    font-family: "Fraunces", "Iowan Old Style", Georgia, serif;
+    font-optical-sizing: auto;
+  }
+
+  .mono {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+  }
+
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 9.5px;
+    line-height: 1.4;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .paper {
+    background-color: var(--surface);
+    background-image: radial-gradient(rgba(90, 92, 74, 0.16) 0.55px, transparent 0.55px);
+    background-size: 14px 14px;
+  }
+
+  .dark .paper {
+    background-image: radial-gradient(rgba(190, 205, 185, 0.1) 0.55px, transparent 0.55px);
+  }
+
+  .hide-scrollbar {
+    scrollbar-width: none;
+  }
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .thin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: var(--line-strong) transparent;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: var(--line-strong);
+  }
+
+  .thin-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .graph-label {
+    paint-order: stroke;
+    stroke: var(--surface);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+
+  .graph-label-page {
+    paint-order: stroke;
+    stroke: var(--page);
+    stroke-width: 4px;
+    stroke-linejoin: round;
+  }
+
+  .animate-rise {
+    animation: rise 0.4s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  .animate-fade {
+    animation: fade 0.25s ease-out both;
+  }
+
+  .animate-draw {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 0.6s ease-out forwards;
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Trace textareas are part of the app, not the OS: keep their resize grip in
+   the warm palette instead of the browser default blue. */
+textarea {
+  resize: vertical;
+}
+
+textarea::-webkit-resizer {
+  background-color: transparent;
+}
+
+input[type='checkbox'] {
+  accent-color: var(--moss);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

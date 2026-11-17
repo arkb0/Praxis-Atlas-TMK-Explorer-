@@ -1,0 +1,629 @@
+{
+  "model": "Method",
+  "methods": [
+    {
+      "name": "NPCProofSolution",
+      "description": "Main FSM orchestrating the full NP-completeness proof for a target problem B given a known NP-complete problem A. Follows the two-step structure: (1) show B is in NP, (2) reduce A to B via polynomial-time f and h, (3) verify correctness of both directions.",
+      "inputParameters": ["initialConfiguration: configuration", "knowledgeBase: knowledgeBase"],
+      "outputParameters": ["finalConfiguration: configuration"],
+      "requires": "isSearchProblem(initialConfiguration.problemB) && isNPComplete(initialConfiguration.problemA)",
+      "provides": "goodNPCProof(finalConfiguration)",
+      "assertions": [
+        {
+          "name": "safe",
+          "description": "A configuration is safe if the checker C(I,S) confirms validity, or the reduction step output is well-formed and non-empty.",
+          "equivalentTo": "C(instance, proposedSolution) = true || !isEmpty(reductionOutput)"
+        },
+        {
+          "name": "InNP",
+          "description": "Abbreviation: problem B is in NP, meaning a polynomial-time checker C(I,S) exists.",
+          "equivalentTo": "ShowInNPMechanism"
+        },
+        {
+          "name": "FwdRed",
+          "description": "Abbreviation: forward reduction function f is polynomial-time and maps A-instances to B-instances.",
+          "equivalentTo": "ForwardReductionMechanism"
+        },
+        {
+          "name": "BwdRec",
+          "description": "Abbreviation: backward recovery function h is polynomial-time and maps B-solutions to A-solutions.",
+          "equivalentTo": "BackwardRecoveryMechanism"
+        },
+        {
+          "name": "RedVerif",
+          "description": "Abbreviation: reduction correctness verified for both the solution-exists and no-solution cases.",
+          "equivalentTo": "ReductionVerificationMechanism"
+        }
+      ],
+      "organizer": {
+        "startState": "NPC_S0",
+        "successState": "NPC_Done",
+        "failureState": "NPC_Fail",
+        "states": [
+          {
+            "name": "NPC_S0",
+            "goalInvocation": {
+              "goalReference": "ShowProblemIsInNP",
+              "type": "task",
+              "actualArguments": ["initialConfiguration", "knowledgeBase"]
+            }
+          },
+          {
+            "name": "NPC_S1",
+            "goalInvocation": {
+              "goalReference": "ConstructForwardReduction",
+              "type": "task",
+              "actualArguments": ["initialConfiguration", "knowledgeBase"]
+            }
+          },
+          {
+            "name": "NPC_S2",
+            "goalInvocation": {
+              "goalReference": "ConstructBackwardSolutionRecovery",
+              "type": "task",
+              "actualArguments": ["initialConfiguration", "knowledgeBase"]
+            }
+          },
+          {
+            "name": "NPC_S3",
+            "goalInvocation": {
+              "goalReference": "VerifyReductionCorrectness",
+              "type": "task",
+              "actualArguments": ["initialConfiguration", "knowledgeBase"]
+            }
+          },
+          {
+            "name": "NPC_Done",
+            "goalInvocation": {
+              "goalReference": "Complete",
+              "type": "task",
+              "actualArguments": ["finalConfiguration"]
+            }
+          },
+          {
+            "name": "NPC_Fail",
+            "goalInvocation": {
+              "goalReference": "FailureGoal",
+              "type": "task",
+              "actualArguments": []
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "sourceState": "NPC_S0",
+            "targetState": "NPC_S1",
+            "dataCondition": "safe(NPC_S0) && !isEmpty(NPC_S0.finalConfiguration.checkerAlgorithm)"
+          },
+          {
+            "sourceState": "NPC_S0",
+            "targetState": "NPC_Fail",
+            "dataCondition": "NOT safe(NPC_S0) || isEmpty(NPC_S0.finalConfiguration.checkerAlgorithm)"
+          },
+          {
+            "sourceState": "NPC_S1",
+            "targetState": "NPC_S2",
+            "dataCondition": "safe(NPC_S1) && !isEmpty(NPC_S1.finalConfiguration.forwardFunction_f)"
+          },
+          {
+            "sourceState": "NPC_S1",
+            "targetState": "NPC_Fail",
+            "dataCondition": "NOT safe(NPC_S1) || isEmpty(NPC_S1.finalConfiguration.forwardFunction_f)"
+          },
+          {
+            "sourceState": "NPC_S2",
+            "targetState": "NPC_S3",
+            "dataCondition": "safe(NPC_S2) && !isEmpty(NPC_S2.finalConfiguration.backwardFunction_h)"
+          },
+          {
+            "sourceState": "NPC_S2",
+            "targetState": "NPC_Fail",
+            "dataCondition": "NOT safe(NPC_S2) || isEmpty(NPC_S2.finalConfiguration.backwardFunction_h)"
+          },
+          {
+            "sourceState": "NPC_S3",
+            "targetState": "NPC_Done",
+            "dataCondition": "safe(NPC_S3) && goodReduction(NPC_S3.finalConfiguration)"
+          },
+          {
+            "sourceState": "NPC_S3",
+            "targetState": "NPC_Fail",
+            "dataCondition": "NOT safe(NPC_S3) || NOT goodReduction(NPC_S3.finalConfiguration)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ShowInNPMechanism",
+      "description": "FSM to establish that a problem B is in NP. Step 1: identify that any proposed solution S has length polynomial in |I|. Step 2: exhibit or construct a polynomial-time checker C(I,S). Step 3: confirm checker runs in polynomial time in |I|.",
+      "inputParameters": ["initialConfiguration: configuration", "knowledgeBase: knowledgeBase"],
+      "outputParameters": ["finalConfiguration: configuration"],
+      "requires": "isSearchProblem(initialConfiguration.problemB)",
+      "provides": "polynomialTime(finalConfiguration.checkerAlgorithm) && !isEmpty(finalConfiguration.checkerAlgorithm)",
+      "organizer": {
+        "startState": "InNP_S0",
+        "successState": "InNP_Done",
+        "failureState": "InNP_Fail",
+        "states": [
+          {
+            "name": "InNP_S0",
+            "goalInvocation": {
+              "goalReference": "IdentifySolutionConciseness",
+              "type": "operation",
+              "actualArguments": ["initialConfiguration.problemB"]
+            }
+          },
+          {
+            "name": "InNP_S1",
+            "goalInvocation": {
+              "goalReference": "ExhibitCheckerAlgorithm",
+              "type": "operation",
+              "actualArguments": ["initialConfiguration.problemB", "initialConfiguration.instance", "initialConfiguration.proposedSolution"]
+            }
+          },
+          {
+            "name": "InNP_S2",
+            "goalInvocation": {
+              "goalReference": "ConfirmCheckerPolynomialTime",
+              "type": "operation",
+              "actualArguments": ["InNP_S1.checkerAlgorithm", "initialConfiguration.instanceLength"]
+            }
+          },
+          {
+            "name": "InNP_Done",
+            "goalInvocation": {
+              "goalReference": "OutputInNPResult",
+              "type": "operation",
+              "actualArguments": ["InNP_S2.verifiedChecker"]
+            }
+          },
+          {
+            "name": "InNP_Fail",
+            "goalInvocation": {
+              "goalReference": "FailureGoal",
+              "type": "task",
+              "actualArguments": []
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "sourceState": "InNP_S0",
+            "targetState": "InNP_S1",
+            "dataCondition": "safe(InNP_S0) && polynomialLength(InNP_S0.solutionLength, InNP_S0.instanceLength)"
+          },
+          {
+            "sourceState": "InNP_S0",
+            "targetState": "InNP_Fail",
+            "dataCondition": "NOT safe(InNP_S0) || NOT polynomialLength(InNP_S0.solutionLength, InNP_S0.instanceLength)"
+          },
+          {
+            "sourceState": "InNP_S1",
+            "targetState": "InNP_S2",
+            "dataCondition": "safe(InNP_S1) && !isEmpty(InNP_S1.checkerAlgorithm)"
+          },
+          {
+            "sourceState": "InNP_S1",
+            "targetState": "InNP_Fail",
+            "dataCondition": "NOT safe(InNP_S1) || isEmpty(InNP_S1.checkerAlgorithm)"
+          },
+          {
+            "sourceState": "InNP_S2",
+            "targetState": "InNP_Done",
+            "dataCondition": "safe(InNP_S2) && polynomialTime(InNP_S2.verifiedChecker)"
+          },
+          {
+            "sourceState": "InNP_S2",
+            "targetState": "InNP_Fail",
+            "dataCondition": "NOT safe(InNP_S2) || NOT polynomialTime(InNP_S2.verifiedChecker)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ForwardReductionMechanism",
+      "description": "FSM to construct the forward polynomial-time function f mapping instances of NP-complete problem A to instances of target problem B. Implements domain-specific gadget constructions such as: for 3SAT --> IndependentSet, build triangle per clause and add inter-clause edges; for SAT --> 3SAT, introduce auxiliary variables y_i; for ZOE --> SubsetSum, encode columns as base-(n+1) integers; for HamiltonianCycle --> TSP, set distances 1 or 1+alpha with budget |V|.",
+      "inputParameters": ["initialConfiguration: configuration", "knowledgeBase: knowledgeBase"],
+      "outputParameters": ["finalConfiguration: configuration"],
+      "requires": "isNPComplete(initialConfiguration.problemA) && isSearchProblem(initialConfiguration.problemB)",
+      "provides": "!isEmpty(finalConfiguration.reducedInstance) && polynomialTime(finalConfiguration.forwardFunction_f)",
+      "organizer": {
+        "startState": "Fwd_S0",
+        "successState": "Fwd_Done",
+        "failureState": "Fwd_Fail",
+        "states": [
+          {
+            "name": "Fwd_S0",
+            "goalInvocation": {
+              "goalReference": "IdentifyReductionStrategy",
+              "type": "operation",
+              "actualArguments": ["initialConfiguration.problemA", "initialConfiguration.problemB"]
+            }
+          },
+          {
+            "name": "Fwd_S1",
+            "goalInvocation": {
+              "goalReference": "ApplyGadgetConstruction",
+              "type": "operation",
+              "actualArguments": ["Fwd_S0.strategy", "initialConfiguration.instanceA"]
+            }
+          },
+          {
+            "name": "Fwd_S2",
+            "goalInvocation": {
+              "goalReference": "VerifyForwardMappingPolynomialTime",
+              "type": "operation",
+              "actualArguments": ["Fwd_S1.reducedInstance", "initialConfiguration.instanceLength"]
+            }
+          },
+          {
+            "name": "Fwd_Done",
+            "goalInvocation": {
+              "goalReference": "OutputForwardReduction",
+              "type": "operation",
+              "actualArguments": ["Fwd_S2.verifiedReducedInstance"]
+            }
+          },
+          {
+            "name": "Fwd_Fail",
+            "goalInvocation": {
+              "goalReference": "FailureGoal",
+              "type": "task",
+              "actualArguments": []
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "sourceState": "Fwd_S0",
+            "targetState": "Fwd_S1",
+            "dataCondition": "safe(Fwd_S0) && !isEmpty(Fwd_S0.strategy)"
+          },
+          {
+            "sourceState": "Fwd_S0",
+            "targetState": "Fwd_Fail",
+            "dataCondition": "NOT safe(Fwd_S0) || isEmpty(Fwd_S0.strategy)"
+          },
+          {
+            "sourceState": "Fwd_S1",
+            "targetState": "Fwd_S2",
+            "dataCondition": "safe(Fwd_S1) && !isEmpty(Fwd_S1.reducedInstance)"
+          },
+          {
+            "sourceState": "Fwd_S1",
+            "targetState": "Fwd_Fail",
+            "dataCondition": "NOT safe(Fwd_S1) || isEmpty(Fwd_S1.reducedInstance)"
+          },
+          {
+            "sourceState": "Fwd_S2",
+            "targetState": "Fwd_Done",
+            "dataCondition": "safe(Fwd_S2) && polynomialTime(Fwd_S2.verifiedReducedInstance)"
+          },
+          {
+            "sourceState": "Fwd_S2",
+            "targetState": "Fwd_Fail",
+            "dataCondition": "NOT safe(Fwd_S2) || NOT polynomialTime(Fwd_S2.verifiedReducedInstance)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BackwardRecoveryMechanism",
+      "description": "FSM to construct the backward polynomial-time function h mapping solutions S of f(I) in problem B back to solutions h(S) of original instance I in problem A. Domain-specific examples: for 3SAT --> Independent Set, assign x=true if vertex labelled x is in independent set S; for SAT --> 3SAT, drop auxiliary variables y_i; for ZOE --> SubsetSum, the selected subset of column-integers gives the 0-1 vector x; for HamiltonianCycle --> TSP, the tour using only cost-1 edges is the Hamiltonian cycle.",
+      "inputParameters": ["initialConfiguration: configuration", "knowledgeBase: knowledgeBase"],
+      "outputParameters": ["finalConfiguration: configuration"],
+      "requires": "!isEmpty(initialConfiguration.forwardFunction_f) && hasSolution(initialConfiguration.reducedInstance)",
+      "provides": "!isEmpty(finalConfiguration.backwardFunction_h) && isValidSolution(finalConfiguration.recoveredSolution, initialConfiguration.instanceA)",
+      "organizer": {
+        "startState": "Bwd_S0",
+        "successState": "Bwd_Done",
+        "failureState": "Bwd_Fail",
+        "states": [
+          {
+            "name": "Bwd_S0",
+            "goalInvocation": {
+              "goalReference": "ReadSolutionOfReducedInstance",
+              "type": "operation",
+              "actualArguments": ["initialConfiguration.reducedInstance", "initialConfiguration.solutionS"]
+            }
+          },
+          {
+            "name": "Bwd_S1",
+            "goalInvocation": {
+              "goalReference": "ApplyInverseMapping",
+              "type": "operation",
+              "actualArguments": ["Bwd_S0.solutionS", "initialConfiguration.forwardFunction_f"]
+            }
+          },
+          {
+            "name": "Bwd_S2",
+            "goalInvocation": {
+              "goalReference": "ValidateRecoveredSolution",
+              "type": "operation",
+              "actualArguments": ["Bwd_S1.recoveredSolution", "initialConfiguration.instanceA"]
+            }
+          },
+          {
+            "name": "Bwd_Done",
+            "goalInvocation": {
+              "goalReference": "OutputRecoveredSolution",
+              "type": "operation",
+              "actualArguments": ["Bwd_S2.validatedSolution"]
+            }
+          },
+          {
+            "name": "Bwd_Fail",
+            "goalInvocation": {
+              "goalReference": "FailureGoal",
+              "type": "task",
+              "actualArguments": []
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "sourceState": "Bwd_S0",
+            "targetState": "Bwd_S1",
+            "dataCondition": "safe(Bwd_S0) && !isEmpty(Bwd_S0.solutionS)"
+          },
+          {
+            "sourceState": "Bwd_S0",
+            "targetState": "Bwd_Fail",
+            "dataCondition": "NOT safe(Bwd_S0) || isEmpty(Bwd_S0.solutionS)"
+          },
+          {
+            "sourceState": "Bwd_S1",
+            "targetState": "Bwd_S2",
+            "dataCondition": "safe(Bwd_S1) && !isEmpty(Bwd_S1.recoveredSolution)"
+          },
+          {
+            "sourceState": "Bwd_S1",
+            "targetState": "Bwd_Fail",
+            "dataCondition": "NOT safe(Bwd_S1) || isEmpty(Bwd_S1.recoveredSolution)"
+          },
+          {
+            "sourceState": "Bwd_S2",
+            "targetState": "Bwd_Done",
+            "dataCondition": "safe(Bwd_S2) && isValidSolution(Bwd_S2.validatedSolution, initialConfiguration.instanceA)"
+          },
+          {
+            "sourceState": "Bwd_S2",
+            "targetState": "Bwd_Fail",
+            "dataCondition": "NOT safe(Bwd_S2) || NOT isValidSolution(Bwd_S2.validatedSolution, initialConfiguration.instanceA)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ReductionVerificationMechanism",
+      "description": "FSM to verify the correctness of the reduction in both directions. Case 1: when f(I) has a solution S, verify h(S) is a valid solution to I. Case 2 (contrapositive): when I has a solution, verify that f(I) also has a solution (equivalently: if f(I) has no solution then I has no solution). Both cases must pass.",
+      "inputParameters": ["initialConfiguration: configuration", "knowledgeBase: knowledgeBase"],
+      "outputParameters": ["finalConfiguration: configuration"],
+      "requires": "!isEmpty(initialConfiguration.forwardFunction_f) && !isEmpty(initialConfiguration.backwardFunction_h)",
+      "provides": "goodReduction(finalConfiguration)",
+      "organizer": {
+        "startState": "RV_S0",
+        "successState": "RV_Done",
+        "failureState": "RV_Fail",
+        "states": [
+          {
+            "name": "RV_S0",
+            "goalInvocation": {
+              "goalReference": "VerifyCase1SolutionExists",
+              "type": "operation",
+              "actualArguments": ["initialConfiguration.forwardFunction_f", "initialConfiguration.backwardFunction_h", "initialConfiguration.instanceA"]
+            }
+          },
+          {
+            "name": "RV_S1",
+            "goalInvocation": {
+              "goalReference": "VerifyCase2NoSolution",
+              "type": "operation",
+              "actualArguments": ["initialConfiguration.forwardFunction_f", "initialConfiguration.instanceA"]
+            }
+          },
+          {
+            "name": "RV_S2",
+            "goalInvocation": {
+              "goalReference": "ConfirmPolynomialTimeOfFandH",
+              "type": "operation",
+              "actualArguments": ["initialConfiguration.forwardFunction_f", "initialConfiguration.backwardFunction_h"]
+            }
+          },
+          {
+            "name": "RV_Done",
+            "goalInvocation": {
+              "goalReference": "OutputVerificationResult",
+              "type": "operation",
+              "actualArguments": ["RV_S2.verificationResult"]
+            }
+          },
+          {
+            "name": "RV_Fail",
+            "goalInvocation": {
+              "goalReference": "FailureGoal",
+              "type": "task",
+              "actualArguments": []
+            }
+          }
+        ],
+        "transitions": [
+          {
+            "sourceState": "RV_S0",
+            "targetState": "RV_S1",
+            "dataCondition": "safe(RV_S0) && case1Verified(RV_S0.result)"
+          },
+          {
+            "sourceState": "RV_S0",
+            "targetState": "RV_Fail",
+            "dataCondition": "NOT safe(RV_S0) || NOT case1Verified(RV_S0.result)"
+          },
+          {
+            "sourceState": "RV_S1",
+            "targetState": "RV_S2",
+            "dataCondition": "safe(RV_S1) && case2Verified(RV_S1.result)"
+          },
+          {
+            "sourceState": "RV_S1",
+            "targetState": "RV_Fail",
+            "dataCondition": "NOT safe(RV_S1) || NOT case2Verified(RV_S1.result)"
+          },
+          {
+            "sourceState": "RV_S2",
+            "targetState": "RV_Done",
+            "dataCondition": "safe(RV_S2) && polynomialTime(RV_S2.forwardFunction_f) && polynomialTime(RV_S2.backwardFunction_h)"
+          },
+          {
+            "sourceState": "RV_S2",
+            "targetState": "RV_Fail",
+            "dataCondition": "NOT safe(RV_S2) || NOT polynomialTime(RV_S2.forwardFunction_f) || NOT polynomialTime(RV_S2.backwardFunction_h)"
+          }
+        ]
+      }
+    },
+    {
+      "name": "IdentifySolutionConciseness",
+      "description": "Determine that any proposed solution S to an instance I of problem B has length polynomially bounded by |I|. For SAT: S is a truth assignment (one bit per variable, polynomial in formula size). For Independent Set: S is a set of vertex labels. For TSP: S is a permutation of n cities.",
+      "inputParameters": ["problemB: searchProblem"],
+      "outputParameters": ["solutionLength: polynomialBound"],
+      "requires": "isSearchProblem(problemB)",
+      "provides": "polynomialLength(solutionLength, instanceLength)"
+    },
+    {
+      "name": "ExhibitCheckerAlgorithm",
+      "description": "Exhibit the polynomial-time checking algorithm C(I,S). For SAT: verify every clause contains a true literal under assignment S. For Independent Set: verify every vertex in S belongs to the graph, all vertices in S are distinct, |S| >= k, and no two vertices in S are adjacent. For TSP: verify S is a tour (each vertex visited once) with total length <= b. For Knapsack: verify total weight <= W and total value >= g.",
+      "inputParameters": ["problemB: searchProblem", "instance: string", "proposedSolution: string"],
+      "outputParameters": ["checkerAlgorithm: algorithm"],
+      "requires": "isSearchProblem(problemB)",
+      "provides": "C(instance, proposedSolution) returnsBooleanInPolynomialTime"
+    },
+    {
+      "name": "ConfirmCheckerPolynomialTime",
+      "description": "Confirm the checker algorithm runs in time polynomial in |I|. The running time of C(I,S) must be bounded by a polynomial in the length of the instance I.",
+      "inputParameters": ["checkerAlgorithm: algorithm", "instanceLength: integer"],
+      "outputParameters": ["verifiedChecker: algorithm"],
+      "requires": "!isEmpty(checkerAlgorithm)",
+      "provides": "runningTime(checkerAlgorithm) <= polynomial(instanceLength)"
+    },
+    {
+      "name": "OutputInNPResult",
+      "description": "Output the verified checker algorithm, confirming B is in NP.",
+      "inputParameters": ["verifiedChecker: algorithm"],
+      "outputParameters": ["finalCheckerResult: configuration"],
+      "requires": "polynomialTime(verifiedChecker)",
+      "provides": "!isEmpty(finalCheckerResult.checkerAlgorithm)"
+    },
+    {
+      "name": "IdentifyReductionStrategy",
+      "description": "Determine the gadget construction or mathematical encoding that transforms instances of problem A into instances of problem B. Examples: triangles+complement-edges for 3SAT --> Independent Set; auxiliary y_i variables for SAT --> 3SAT; base-(n+1) integer encoding for ZOE --> SubsetSum; distance matrix with 1 or 1+alpha for HamiltonianCycle --> TSP; add vertex x with edges {s,x},{x,t} for HamiltonianPath --> HamiltonianCycle; circuit-to-CNF translation for CircuitSAT --> SAT.",
+      "inputParameters": ["problemA: searchProblem", "problemB: searchProblem"],
+      "outputParameters": ["strategy: reductionStrategy"],
+      "requires": "isNPComplete(problemA) && isSearchProblem(problemB)",
+      "provides": "!isEmpty(strategy.gadgetDescription) && polynomialTime(strategy)"
+    },
+    {
+      "name": "ApplyGadgetConstruction",
+      "description": "Apply the identified gadget construction to transform a specific instance of A into an instance of B. For 3SAT --> IndependentSet: for each clause build a triangle (or edge for 2-literal clause) with vertices labelled by literals; add edges between vertices for opposite literals (x and x-bar); set goal g = number of clauses. For SAT --> 3SAT: replace each clause of k>3 literals (a1 v ... v ak) with (a1 v a2 v y1)(y1-bar v a3 v y2)...(y_{k-3}-bar v a_{k-1} v ak). For ZOE --> SubsetSum: interpret each column of A as an integer in base (n+1); target = all-ones vector as base-(n+1) integer. For HamiltonianCycle --> TSP: cities=vertices, d(u,v)=1 if edge, 1+alpha otherwise, budget=|V|.",
+      "inputParameters": ["strategy: reductionStrategy", "instanceA: string"],
+      "outputParameters": ["reducedInstance: string"],
+      "requires": "!isEmpty(strategy) && !isEmpty(instanceA)",
+      "provides": "!isEmpty(reducedInstance) && isValidInstanceOf(reducedInstance, problemB)"
+    },
+    {
+      "name": "VerifyForwardMappingPolynomialTime",
+      "description": "Verify that the gadget construction runs in polynomial time in the size of the A-instance. For example: 3SAT --> Independent Set is polynomial (one triangle per clause, edges between opposite literals); SAT --> 3SAT is polynomial (a linear number of new clauses and variables in the length of each original clause); ZOE --> SubsetSum is polynomial (interpreting columns as integers takes polynomial time); HamiltonianCycle --> TSP is polynomial (fill in distance matrix).",
+      "inputParameters": ["reducedInstance: string", "instanceLength: integer"],
+      "outputParameters": ["verifiedReducedInstance: string"],
+      "requires": "!isEmpty(reducedInstance)",
+      "provides": "constructionTime(reducedInstance) <= polynomial(instanceLength)"
+    },
+    {
+      "name": "OutputForwardReduction",
+      "description": "Output the verified reduced instance f(I) of problem B.",
+      "inputParameters": ["verifiedReducedInstance: string"],
+      "outputParameters": ["finalReducedInstance: configuration"],
+      "requires": "!isEmpty(verifiedReducedInstance)",
+      "provides": "!isEmpty(finalReducedInstance.reducedInstance)"
+    },
+    {
+      "name": "ReadSolutionOfReducedInstance",
+      "description": "Read the solution S of the reduced instance f(I) of problem B.",
+      "inputParameters": ["reducedInstance: string", "solutionS: string"],
+      "outputParameters": ["parsedSolution: string"],
+      "requires": "!isEmpty(reducedInstance) && !isEmpty(solutionS)",
+      "provides": "isValidSolution(parsedSolution, reducedInstance)"
+    },
+    {
+      "name": "ApplyInverseMapping",
+      "description": "Apply the inverse function h to map solution S of f(I) back to a solution of original instance I. Examples: for 3SAT --> Independent Set: for each variable x, assign x=true if vertex labelled x is in S, false if vertex labelled x-bar is in S (if neither, assign either value); for SAT --> 3SAT: drop auxiliary y_i variables; for ZOE --> SubsetSum: the selected subset of column-integers gives x-vector with x_j=1 if column j selected; for HamiltonianCycle --> TSP: the TSP tour of cost exactly |V| is the Hamiltonian cycle (uses only cost-1 edges).",
+      "inputParameters": ["solutionS: string", "forwardFunction_f: function"],
+      "outputParameters": ["recoveredSolution: string"],
+      "requires": "!isEmpty(solutionS) && !isEmpty(forwardFunction_f)",
+      "provides": "!isEmpty(recoveredSolution)"
+    },
+    {
+      "name": "ValidateRecoveredSolution",
+      "description": "Validate that the recovered solution h(S) is indeed a valid solution to the original instance I of problem A, using the checker C(I, h(S)).",
+      "inputParameters": ["recoveredSolution: string", "instanceA: string"],
+      "outputParameters": ["validatedSolution: string"],
+      "requires": "!isEmpty(recoveredSolution) && !isEmpty(instanceA)",
+      "provides": "C(instanceA, recoveredSolution) = true"
+    },
+    {
+      "name": "OutputRecoveredSolution",
+      "description": "Output the validated recovered solution h(S) as the solution to the original instance I.",
+      "inputParameters": ["validatedSolution: string"],
+      "outputParameters": ["finalSolution: configuration"],
+      "requires": "!isEmpty(validatedSolution)",
+      "provides": "!isEmpty(finalSolution.recoveredSolution)"
+    },
+    {
+      "name": "VerifyCase1SolutionExists",
+      "description": "Verify Case 1 of the reduction correctness proof. Given that f(I) has a solution S in B, show that h(S) is a valid solution to I in A. Example for 3SAT --> Independent Set: independent set S of size g has one vertex per clause, no two vertices labelled x and x-bar (they are connected by an edge), so assigning truth values by S yields a satisfying assignment.",
+      "inputParameters": ["forwardFunction_f: function", "backwardFunction_h: function", "instanceA: string"],
+      "outputParameters": ["case1Result: boolean"],
+      "requires": "!isEmpty(forwardFunction_f) && !isEmpty(backwardFunction_h)",
+      "provides": "case1Verified(case1Result)"
+    },
+    {
+      "name": "VerifyCase2NoSolution",
+      "description": "Verify Case 2 of the reduction correctness proof (typically via contrapositive). Show that if I has a solution to problem A, then f(I) has a solution to problem B. Equivalently: if f(I) has no solution then I has no solution. Example for 3SAT --> Independent Set (contrapositive): if I has a satisfying assignment, pick one true literal per clause to form an independent set S of size g in G (no two chosen vertices are adjacent since no opposite literals are chosen).",
+      "inputParameters": ["forwardFunction_f: function", "instanceA: string"],
+      "outputParameters": ["case2Result: boolean"],
+      "requires": "!isEmpty(forwardFunction_f)",
+      "provides": "case2Verified(case2Result)"
+    },
+    {
+      "name": "ConfirmPolynomialTimeOfFandH",
+      "description": "Confirm that both f and h run in time polynomial in the size of the original instance I. This is the final check required for a valid reduction.",
+      "inputParameters": ["forwardFunction_f: function", "backwardFunction_h: function"],
+      "outputParameters": ["verificationResult: boolean"],
+      "requires": "!isEmpty(forwardFunction_f) && !isEmpty(backwardFunction_h)",
+      "provides": "polynomialTime(forwardFunction_f) && polynomialTime(backwardFunction_h)"
+    },
+    {
+      "name": "OutputVerificationResult",
+      "description": "Output the final verification result confirming goodReduction holds.",
+      "inputParameters": ["verificationResult: boolean"],
+      "outputParameters": ["finalVerification: configuration"],
+      "requires": "verificationResult = true",
+      "provides": "goodReduction(finalVerification)"
+    },
+    {
+      "name": "FailureMechanism",
+      "description": "Signal proof failure. Invoked when any step of the NP-completeness proof cannot be completed: problem not in NP, forward mapping not polynomial, backward mapping invalid, or reduction verification fails.",
+      "inputParameters": ["initialConfiguration: configuration"],
+      "outputParameters": ["failureConfiguration: configuration"],
+      "requires": "true",
+      "provides": "proofFailed(failureConfiguration)"
+    },
+    {
+      "name": "CompleteMechanism",
+      "description": "Signal proof completion. The target problem B is NP-complete: it is in NP and all NP problems reduce to it via composition through A.",
+      "inputParameters": ["finalConfiguration: configuration"],
+      "outputParameters": ["completedConfiguration: configuration"],
+      "requires": "goodNPCProof(finalConfiguration)",
+      "provides": "isNPComplete(completedConfiguration.problemB)"
+    }
+  ]
+}
