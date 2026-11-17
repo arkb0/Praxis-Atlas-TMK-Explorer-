@@ -607,7 +607,7 @@ export default function GraphCanvas({
       <div className="absolute bottom-3 right-3 flex items-center gap-1 rounded-lg border border-line bg-surface/95 p-1 shadow-sm backdrop-blur">
         <button
           type="button"
-          onClick={() => zoomTo(1.18)}
+          onClick={() => zoomTo(0.84)}
           className="flex h-7 w-7 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-muted hover:text-ink"
           aria-label="Zoom in"
           title="Zoom in"
@@ -616,7 +616,7 @@ export default function GraphCanvas({
         </button>
         <button
           type="button"
-          onClick={() => zoomTo(0.84)}
+          onClick={() => zoomTo(1.18)}
           className="flex h-7 w-7 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface-muted hover:text-ink"
           aria-label="Zoom out"
           title="Zoom out"
