@@ -514,60 +514,67 @@ STAGE 2 OUTPUT (FAISS top-4 docs + relevance scores)
 ------------------------------------------------------------
 STAGE 3 OUTPUT (intermediate response)
 ------------------------------------------------------------
-Here’s a concise NP-completeness proof sketch for Dominating Set.
+Thanks for the question. I’ll give a concise NP-completeness proof outline for the Dominating Set problem.
 
 Problem: Dominating Set
 - Input: A graph G = (V, E) and an integer k.
-- Question: Does G contain a dominating set of size at most k? (A dominating set S ⊆ V such that every vertex not in S is adjacent to at least one vertex in S.)
+- Question: Does G contain a dominating set S ⊆ V with |S| ≤ k, i.e., every vertex v ∈ V is either in S or has a neighbor in S?
 
-Steps to show NP-completeness:
+Outline of proof that Dominating Set is NP-complete
 
 1) Dominating Set is in NP
-- Given a certificate S ⊆ V with |S| ≤ k, we can verify in polynomial time that S dominates G:
-  - For every vertex v ∈ V, check whether v ∈ S or N(v) ∩ S ≠ ∅.
-  - This can be done in O(|V| + |E|) time by inspecting adjacency lists.
-- Hence Dominating Set ∈ NP.
+- Given a certificate S ⊆ V with |S| ≤ k, we can verify in polynomial time that S is a dominating set.
+- Check: For every vertex v ∈ V, is v ∈ S or does v have a neighbor in S?
+- If all vertices are covered, accept. This verification runs in O(|V| + |E|) time, which is polynomial in the input size.
 
-2) NP-hardness via reduction from Vertex Cover (or Set Cover, etc.)
-- A standard route is a polynomial-time reduction from Vertex Cover, which is NP-complete.
+2) NP-hardness via reduction from Vertex Cover (or Set Cover, or Dominating Set itself reduced from Vertex Cover)
+- A standard and convenient route is to reduce Vertex Cover to Dominating Set in polynomial time.
+- Given an instance (G = (V, E), k) of Vertex Cover, construct a graph G' = (V', E') and an integer k' such that G has a vertex cover of size ≤ k if and only if G' has a dominating set of size ≤ k'.
+- The classical construction is as follows:
+  - Start with the same vertex set V and edge set E in G'.
+  - Add a new vertex for each edge to help enforce domination constraints. More concretely, for each edge (u, v) ∈ E, add a new vertex e_{uv} and connect e_{uv} to both u and v (i.e., edges (e_{uv}, u) and (e_{uv}, v)).
+  - Let V' = V ∪ {e_{uv} : (u, v) ∈ E} and E' = E ∪ { (e_{uv}, u), (e_{uv}, v) : (u, v) ∈ E }.
+  - Set k' = k.
+- Intuition:
+  - Any dominating set in G' of size ≤ k must cover every original edge by dominating its endpoints and the added edge-vertices, which effectively forces selecting a vertex cover in G.
+  - Conversely, a vertex cover of G of size ≤ k can dominate all vertices in G' by selecting exactly those original vertices, since every edge endpoint is adjacent to its edge-vertex and thus covered.
+- One can show formally that G has a vertex cover of size ≤ k if and only if G' has a dominating set of size ≤ k'.
 
-Reduction from Vertex Cover to Dominating Set:
-- Given an instance (G = (V, E), k) of Vertex Cover, construct the same graph G = (V, E) and use the same k.
-- Fact: A vertex cover S ⊆ V of size at most k in G is a dominating set of size at most k in G, and vice versa, in the constructed instance, if you consider the following observation:
+Alternative standard route:
+- Reduce from Set Cover or from Vertex Cover with a slightly more elaborated but well-known construction. The essential idea remains: there is a polynomial-time reduction from Vertex Cover (NP-complete) to Dominating Set, establishing NP-hardness.
 
-Key observations:
-- If S is a vertex cover, then every edge has at least one endpoint in S. For any vertex v ∈ V \ S, since every edge incident to v must be covered, and v has at least one neighbor in S for each edge from v, in particular v is adjacent to some vertex in S or v ∈ S. This implies S dominates V.
-- Conversely, if S is a dominating set of size ≤ k, then every edge has at least one endpoint in S or is adjacent to a vertex in S; in a simple undirected graph, this entails that all edges are incident to S, because if an edge (u, v) had neither endpoint in S, then neither u nor v would be dominated by S unless there is another neighbor in S—contradicting the edge coverage condition implied by domination for all vertices with respect to S. The more direct standard argument is: from a dominating set S of size k, the set S is a vertex cover in the graph G' obtained by transforming G (or via a standard known equivalence under a small modification). However, the classic clean reduction is from Vertex Cover to Dominating Set by a gadget construction to preserve equivalence exactly. A commonly taught, simpler route is to reduce Set Cover (which is NP-hard) to Dominating Set; however, the Vertex Cover → Dominating Set reduction can be described as follows in many textbooks:
+Conclusion
+- Dominating Set is in NP (verification is polynomial).
+- Dominating Set is NP-hard via a polynomial-time reduction from Vertex Cover (or another known NP-complete problem).
+- Therefore, Dominating Set is NP-complete.
 
-A standard textbook reduction outline (Vertex Cover → Dominating Set):
-- Given G = (V, E) and k, construct a new graph G' by subdividing each edge (u, v) with a new vertex w_{uv} inserted between u and v, and connect w_{uv} only to u and v. Additionally, keep all original vertices V as they are. Set k' = k.
-- In G', any dominating set of size ≤ k' must include all original vertices corresponding to a vertex cover in G, and conversely, any vertex cover of size ≤ k in G gives a dominating set of size ≤ k' in G'. This establishes the equivalence and thus the reduction.
-
-- Therefore, Dominating Set is NP-hard.
-
-Conclusion:
-- Since Dominating Set is in NP and NP-hard via a standard reduction (e.g., Vertex Cover → Dominating Set or Set Cover → Dominating Set with a gadget construction), Dominating Set is NP-complete.
-
-If you’d like, I can provide a concrete, step-by-step gadget-based reduction from Vertex Cover to Dominating Set with full details and a small worked example. Also, I can relate Dominating Set to the other problems in your TMK framework (e.g., how to map to or from Independent Set, Clique, or Vertex Cover) if that helps with your study.
+If you’d like, I can provide a more explicit, step-by-step reduction with formal correctness proofs and a concrete example to illustrate the construction.
 
 ------------------------------------------------------------
 STAGE 4 OUTPUT (final answer)
 ------------------------------------------------------------
-Definition (Dominating Set): In a graph G = (V, E), a subset S ⊆ V is dominating if every vertex not in S is adjacent to at least one vertex in S. The problem: given G and k, does G have a dominating set of size at most k?
+Dominating Set: quick definition
+- Input: A graph G = (V, E) and an integer k.
+- Question: Is there a subset S ⊆ V with |S| ≤ k such that every vertex not in S is adjacent to a vertex in S?
 
-Brief NP-completeness proof:
+Concise NP-completeness proof outline
+- In NP: Given S, we can verify in polynomial time that every vertex is either in S or adjacent to a vertex in S.
 
-- In NP: A candidate S with |S| ≤ k can be checked in polynomial time by verifying for every v ∈ V that v ∈ S or N(v) ∩ S ≠ ∅.
+- NP-hardness (via reduction from Vertex Cover):
+  - Given an instance (G = (V, E), k) of Vertex Cover, construct G' as follows:
+    - Start with the same V and E.
+    - For each edge (u, v) ∈ E, add a new vertex e_uv and connect it to u and v.
+    - Let V' = V ∪ {e_uv : (u, v) ∈ E} and E' = E ∪ { (e_uv, u), (e_uv, v) : (u, v) ∈ E }.
+    - Set k' = k.
+  - Then G has a vertex cover of size ≤ k iff G' has a dominating set of size ≤ k'.
+  - Intuition: The edge-vertices force a selection that corresponds to choosing endpoints to cover edges, aligning with a vertex cover in G.
 
-- NP-hardness (sketch via reduction from Vertex Cover):
-  - Take an instance (G = (V, E), k) of Vertex Cover.
-  - Build a new graph G' by subdividing each edge (u, v) with a new vertex w_{uv} connected only to u and v, and keep the original vertices V. Set k' = k.
-  - Claim: G has a vertex cover of size ≤ k iff G' has a dominating set of size ≤ k'.
-  - Intuition: A vertex cover in G corresponds to choosing the original vertices in G' that dominate all original and subdividing vertices; conversely, any small dominating set in G' must include the original vertices forming a vertex cover in G.
+Conclusion
+- Dominating Set is in NP.
+- Dominating Set is NP-hard via a polynomial-time reduction from Vertex Cover.
+- Therefore, Dominating Set is NP-complete.
 
-Conclusion: Dominating Set is in NP and NP-hard, hence NP-complete.
-
-If you’d like, I can provide a concrete, detailed gadget construction with a small example to illustrate the reduction.
+If you’d like, I can provide a more explicit, formal correctness proof for the reduction or a concrete example.
 
 ------------------------------------------------------------
 6-TUPLE TRACE
